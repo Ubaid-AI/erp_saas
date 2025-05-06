@@ -1,6 +1,6 @@
 ## Erp SaaS
 
-App to manage ERPNext User, Company and Space limitations
+App to manage ERP User, Company and Space limitations
 
 #### How to Install
 ```

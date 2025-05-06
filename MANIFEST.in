@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include erp_saas *.css
+recursive-include erp_saas *.csv
+recursive-include erp_saas *.html
+recursive-include erp_saas *.ico
+recursive-include erp_saas *.js
+recursive-include erp_saas *.json
+recursive-include erp_saas *.md
+recursive-include erp_saas *.png
+recursive-include erp_saas *.py
+recursive-include erp_saas *.svg
+recursive-include erp_saas *.txt
+recursive-exclude erp_saas *.pyc

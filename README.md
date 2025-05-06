@@ -1,4 +1,4 @@
-## Erpnext Quota
+## Erp SaaS
 
 App to manage ERPNext User, Company and Space limitations
 

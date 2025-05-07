@@ -1,0 +1,85 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:site_name",
+ "creation": "2025-05-07 00:37:15.110526",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "site_name",
+  "subscription",
+  "notes",
+  "column_break_exuo",
+  "domain",
+  "plan",
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "domain",
+   "fieldtype": "Link",
+   "label": "Domain",
+   "options": "Saas Domain"
+  },
+  {
+   "fieldname": "subscription",
+   "fieldtype": "Link",
+   "label": "Linked Subscription",
+   "options": "Subscription"
+  },
+  {
+   "fieldname": "plan",
+   "fieldtype": "Link",
+   "label": "Plan",
+   "options": "Subscription Plan"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Provisioning\nActive\nSuspended\nDeleted"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "column_break_exuo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "site_name",
+   "fieldtype": "Data",
+   "label": "Site Name",
+   "unique": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-05-07 12:42:38.610844",
+ "modified_by": "Administrator",
+ "module": "Erp SaaS",
+ "name": "Customer Site",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

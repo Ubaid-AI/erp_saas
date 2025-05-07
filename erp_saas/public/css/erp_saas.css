@@ -1,0 +1,16 @@
+li#changelog_feed {
+    display: none !important;
+}
+
+li.dropdown.dropdown-help.dropdown-mobile {
+    Display : none !important;
+    }
+    
+nav-item dropdown dropdown-help dropdown-mobile d-none d-lg-block {
+    Display : none !important;
+    }
+
+    div.widget.onboarding-widget-box {
+        Display : none !important;
+    
+    }

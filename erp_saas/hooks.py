@@ -14,7 +14,7 @@ app_license = "MIT"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/erp_saas/css/erp_saas.css"
+app_include_css = "/assets/erp_saas/css/erp_saas.css"
 # app_include_js = "/assets/erp_saas/js/erp_saas.js"
 
 # include js, css files in header of web template
@@ -105,7 +105,7 @@ doc_events = {
         'validate': 'erp_saas.erp_saas.quota.files_space_limit'
     },
     "Subscription": {
-        "after_insert": "erp_saas.erp_saas.api.provisioning.provision_site"
+        "after_insert": "erp_saas.erp_saas.api.provisioning.queue_site_provisioning"
     }
 }
 # Scheduled Tasks

@@ -67,8 +67,8 @@ def _provision_site(subscription_doc):
             "active_users": 1,
             "backup_files_size": plan.custom_backup_files,
             "company": plan.custom_max_company,
-            "count_administrator_user": 0,
-            "count_website_users": 0,
+            "count_administrator_user": plan.custom_count_administrator_user,
+            "count_website_users": plan.custom_count_website_user,
             "db_space": plan.custom_max_db_storage_mb,
             "document_limit": {
                 doc.document_type: {"limit": doc.limit, "period": doc.period}

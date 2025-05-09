@@ -103,13 +103,15 @@ doc_events = {
     },
     'File': {
         'validate': 'erp_saas.erp_saas.quota.files_space_limit'
-    },
-    "Subscription": {
-        "after_insert": "erp_saas.erp_saas.api.provisioning.queue_site_provisioning"
     }
 }
 # Scheduled Tasks
 # ---------------
+
+#    "Subscription": {
+#         "after_insert": "erp_saas.erp_saas.api.provisioning.queue_site_provisioning"
+#     }
+
 
 scheduler_events = {
     "daily": [

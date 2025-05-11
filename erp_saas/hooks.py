@@ -41,6 +41,14 @@ app_include_css = "/assets/erp_saas/css/erp_saas.css"
 # "Role": "home_page"
 # }
 
+
+website_route_rules = [
+    {
+        "from_route": "/customer-signup",
+        "to_route": "customer_signup"
+    }
+]
+
 # Website user home page (by function)
 # get_website_user_home_page = "erp_saas.utils.get_home_page"
 

@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2025-05-11 19:52:25.543578",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2025-05-11 19:52:25.543578",
+ "modified_by": "Administrator",
+ "module": "Erp SaaS",
+ "name": "customer-signup",
+ "owner": "Administrator",
+ "page_name": "customer-signup",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Customer Signup"
+}

@@ -87,6 +87,7 @@ before_install = "erp_saas.install.before_install"
 # }
 
 on_login = 'erp_saas.events.auth.successful_login'
+after_login = 'erp_saas.erp_saas.api.provisioning.handle_first_login'
 
 doc_events = {
     'User': {

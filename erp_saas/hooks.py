@@ -117,6 +117,15 @@ doc_events = {
 #     }
 
 
+fixtures = [
+    {
+        "doctype": "Client Script",
+        "filters": {
+            "module": ["=", "Erp SaaS"]
+        }
+    }
+]
+
 scheduler_events = {
     "daily": [
         "erp_saas.tasks.daily"

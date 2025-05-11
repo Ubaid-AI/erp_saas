@@ -1,0 +1,24 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Subscription",
+  "enabled": 1,
+  "modified": "2025-05-08 00:06:56.721065",
+  "module": "Erp SaaS",
+  "name": "save message",
+  "script": "frappe.ui.form.on('Subscription', {\r\n  refresh(frm) {\r\n    if (!frm.doc.custom_is_provisioned && frm.doc.docstatus===0) {\r\n      frm.add_custom_button('Provision Site', () => {\r\n        frappe.call({\r\n          method: 'erp_saas.erp_saas.api.provisioning.provision_site_remote',\r\n          args: { subscription_name: frm.doc.name },\r\n          freeze: false,\r\n          // this callback receives (percent, message)\r\n          progress: (percent, message) => {\r\n            frappe.show_progress(message, percent);\r\n          },\r\n          callback: (r) => {\r\n            if (r.message) {\r\n              frappe.msgprint(r.message);\r\n            }\r\n            frm.reload_doc();\r\n          }\r\n        });\r\n      });\r\n    }\r\n  }\r\n});\r\n\r\n\r\n// frappe.ui.form.on('Subscription', {\r\n//   refresh(frm) {\r\n//     if (!frm.doc.custom_is_provisioned && frm.doc.docstatus===0) {\r\n//       frm.add_custom_button('Provision Site', () => {\r\n//         frappe.call({\r\n//           method: 'erp_saas.erp_saas.api.provisioning.provision_site_remote',\r\n//           args: { subscription_name: frm.doc.name },\r\n//           freeze: true,\r\n//           freeze_message: 'Provisioning site, please wait...',\r\n//           callback: (r) => {\r\n//             if (r.message) {\r\n//               frappe.msgprint(r.message);\r\n//             }\r\n//             frm.reload_doc();\r\n//           }\r\n//         });\r\n//       });\r\n//     }\r\n//   }\r\n// });\r\n",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Subscription",
+  "enabled": 1,
+  "modified": "2025-05-11 18:10:34.284269",
+  "module": "Erp SaaS",
+  "name": "Upgrade subscription plan",
+  "script": "frappe.ui.form.on('Subscription', {\r\n  refresh(frm) {\r\n    // only when the Subscription is saved and has a plan/site\r\n    if (!frm.is_new() && frm.doc.custom_site_name) {\r\n      frm.add_custom_button(__('Upgrade Plan'), () => {\r\n        frappe.call({\r\n          method: 'erp_saas.erp_saas.api.site_config_update.upgrade_plan_quota',\r\n          args: { subscription_name: frm.doc.name },\r\n          freeze: true,\r\n          freeze_message: __('Upgrading plan quotas…'),\r\n          callback: r => {\r\n            if (r.message) {\r\n              frappe.msgprint(r.message);\r\n            }\r\n          }\r\n        });\r\n      });\r\n    }\r\n  }\r\n});\r\n",
+  "view": "Form"
+ }
+]

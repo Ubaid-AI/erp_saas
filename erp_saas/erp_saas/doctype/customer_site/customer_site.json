@@ -12,7 +12,22 @@
   "column_break_exuo",
   "domain",
   "plan",
-  "status"
+  "status",
+  "limits_tab",
+  "max_users",
+  "max_storage_mb",
+  "max_db_storage_mb",
+  "backup_files",
+  "count_administrator_user",
+  "count_website_user",
+  "column_break_nahv",
+  "max_company",
+  "validity_days",
+  "private_files_size_mb",
+  "public_files_size_mb",
+  "end_date",
+  "section_break_hzox",
+  "document_limits"
  ],
  "fields": [
   {
@@ -53,12 +68,90 @@
    "fieldtype": "Data",
    "label": "Site Name",
    "unique": 1
+  },
+  {
+   "fieldname": "limits_tab",
+   "fieldtype": "Tab Break",
+   "label": "Limits"
+  },
+  {
+   "fieldname": "max_users",
+   "fieldtype": "Int",
+   "label": "Max Users"
+  },
+  {
+   "fieldname": "max_storage_mb",
+   "fieldtype": "Int",
+   "label": "Max Storage (MB)"
+  },
+  {
+   "fieldname": "max_db_storage_mb",
+   "fieldtype": "Int",
+   "label": "Max DB Storage (MB)"
+  },
+  {
+   "fieldname": "backup_files",
+   "fieldtype": "Int",
+   "label": "Backup Files"
+  },
+  {
+   "default": "0",
+   "description": "Check it if you want to count administrator user in MAX User limit",
+   "fieldname": "count_administrator_user",
+   "fieldtype": "Check",
+   "label": "Count Administrator User"
+  },
+  {
+   "default": "0",
+   "description": "Check it if you want to count Website user in MAX User limit",
+   "fieldname": "count_website_user",
+   "fieldtype": "Check",
+   "label": "Count Website User"
+  },
+  {
+   "fieldname": "column_break_nahv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "max_company",
+   "fieldtype": "Int",
+   "label": "Max Company"
+  },
+  {
+   "fieldname": "validity_days",
+   "fieldtype": "Int",
+   "label": "Validity (Days)"
+  },
+  {
+   "fieldname": "private_files_size_mb",
+   "fieldtype": "Int",
+   "label": "Private Files Size (MB)"
+  },
+  {
+   "fieldname": "public_files_size_mb",
+   "fieldtype": "Int",
+   "label": "Public Files Size (MB)"
+  },
+  {
+   "fieldname": "section_break_hzox",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "document_limits",
+   "fieldtype": "Table",
+   "label": "Document Limits",
+   "options": "Quota Document Limit Detail"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "Subscription End Date"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-07 12:42:38.610844",
+ "modified": "2025-05-11 16:50:22.297734",
  "modified_by": "Administrator",
  "module": "Erp SaaS",
  "name": "Customer Site",

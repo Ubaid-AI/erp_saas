@@ -20,7 +20,7 @@ def get_published_plans():
             "custom_hot", "custom_old_price", "cost",
             "custom_max_users", "custom_max_company",
             "custom_max_db_storage_mb", "custom_max_storage_mb",
-            "custom_private_files_size_mb", "custom_public_files_size_mb"
+            "custom_private_files_size_mb", "custom_public_files_size_mb", "custom_trial_in_days"
         ]
     )
 
@@ -37,6 +37,7 @@ def get_published_plans():
             "cost":             p.cost or 0,
             "currency":         currency_symbol,
             "max_users":        p.custom_max_users,
+            "trial_days":       p.custom_trial_in_days,
             "max_companies":    p.custom_max_company,
             "db_storage_mb":    p.custom_max_db_storage_mb,
             "storage_mb":       p.custom_max_storage_mb,

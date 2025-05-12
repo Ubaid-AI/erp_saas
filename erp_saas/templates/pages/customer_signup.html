@@ -5,7 +5,7 @@
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
 <div class="container py-5" data-aos="fade-in">
-  <div class="card mx-auto shadow-lg" style="max-width: 1200px; border-radius: 1rem;">
+  <!-- <div class="card mx-auto shadow-lg" style="max-width: 1200px; border-radius: 1rem;"> -->
     <div class="card-body p-4">
 
 
@@ -17,47 +17,104 @@
       
       <!-- STEP 2: Customer Info -->
       <section id="step-2" class="wizard-step" style="display:none;">
-        <h1 class="h3 text-center mb-4">Tell Us About You</h1>
-
-        <div class="form-group mb-2">
-          <input id="cust-name" class="form-control form-control-lg" type="text" placeholder="Your Name"/>
+        <div class="card mx-auto shadow-lg" style="max-width:520px; border-radius:1rem; padding:2rem;">
+          <h1 class="h3 text-center mb-4">Tell Us About You</h1>
+      
+          <form id="signup-form">
+      
+            <!-- First + Last -->
+            <div class="row g-3 mb-3">
+              <div class="col form-group">
+                <label for="first-name" class="form-label">First Name</label>
+                <input type="text" id="first-name"
+                       class="form-control"
+                       placeholder="First Name" />
+              </div>
+              <div class="col form-group">
+                <label for="last-name" class="form-label">Last Name</label>
+                <input type="text" id="last-name"
+                       class="form-control"
+                       placeholder="Last Name" />
+              </div>
+            </div>
+      
+            <!-- Email + Phone -->
+            <div class="row g-3 mb-3">
+              <div class="col form-group">
+                <label for="cust-email" class="form-label">Email Address</label>
+                <input type="email" id="cust-email"
+                       class="form-control"
+                       placeholder="you@example.com" />
+              </div>
+              <div class="col form-group">
+                <label for="cust-phone" class="form-label">Phone (optional)</label>
+                <input type="tel" id="cust-phone"
+                       class="form-control"
+                       placeholder="+1-555-123-4567" />
+              </div>
+            </div>
+      
+            <!-- Street -->
+            <div class="form-group mb-3">
+              <label for="addr-street" class="form-label">Street Address</label>
+              <input type="text" id="addr-street"
+                     class="form-control"
+                     placeholder="123 Main St" />
+            </div>
+      
+            <!-- City + State -->
+            <div class="row g-3 mb-3">
+              <div class="col form-group">
+                <label for="addr-city" class="form-label">City/Town</label>
+                <input type="text" id="addr-city"
+                       class="form-control"
+                       placeholder="City" />
+              </div>
+              <div class="col form-group">
+                <label for="addr-state" class="form-label">State/Province</label>
+                <input type="text" id="addr-state"
+                       class="form-control"
+                       placeholder="State" />
+              </div>
+            </div>
+      
+            <!-- Postal + Country -->
+            <div class="row g-3 mb-4">
+              <div class="col form-group">
+                <label for="addr-postal" class="form-label">Postal Code</label>
+                <input type="text" id="addr-postal"
+                       class="form-control"
+                       placeholder="Postal Code" />
+              </div>
+              <div class="col form-group">
+                <label for="addr-country" class="form-label">Country</label>
+                <input list="country-list" id="addr-country"
+                       class="form-control"
+                       placeholder="Country" />
+                <datalist id="country-list"></datalist>
+              </div>
+            </div>
+      
+            <!-- Buttons -->
+            <div class="d-flex justify-content-between">
+              <button type="button" id="btn-prev" class="btn btn-back">
+                ← Back
+              </button>
+              <button type="button" id="btn-next" class="btn btn-started">
+                Create Account
+              </button>
+            </div>
+      
+          </form>
         </div>
-        <div class="form-group mb-2">
-          <input id="cust-email" class="form-control form-control-lg" type="email" placeholder="Email"/>
-        </div>
-        <div class="form-group mb-4">
-          <input id="cust-phone" class="form-control form-control-lg" type="tel" placeholder="Phone (optional)"/>
-        </div>
-
-        <hr/>
-
-        <div class="form-group mb-2">
-          <input id="addr-street" class="form-control form-control-lg" type="text" placeholder="Street Address"/>
-        </div>
-        <div class="row g-2 mb-2">
-          <div class="col">
-            <input id="addr-city" class="form-control form-control-lg" type="text" placeholder="City/Town"/>
-          </div>
-          <div class="col">
-            <input id="addr-state" class="form-control form-control-lg" type="text" placeholder="State/Province"/>
-          </div>
-        </div>
-        <div class="row g-2 mb-4">
-          <div class="col">
-            <input id="addr-postal" class="form-control form-control-lg" type="text" placeholder="Postal Code"/>
-          </div>
-          <div class="col">
-            <input id="addr-country" list="country-list" class="form-control form-control-lg" placeholder="Country"/>
-            <datalist id="country-list"></datalist>
-          </div>
-        </div>
-
-        <button id="btn-prev" class="btn btn-outline-secondary">← Back</button>
-        <button id="btn-next" class="btn-started float-end">Get Started</button>
       </section>
+      
+      
+      
+      
 
     </div>
-  </div>
+  <!-- </div> -->
 </div>
 
 <link rel="stylesheet" href="/assets/erp_saas/css/self_service.css"/>

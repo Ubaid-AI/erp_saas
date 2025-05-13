@@ -1,5 +1,7 @@
 import frappe
 
+from frappe.utils import nowdate
+
 @frappe.whitelist(allow_guest=True)
 def get_published_plans():
     """
@@ -59,3 +61,46 @@ def get_country_list():
     Return a list of all Country names for the signup form.
     """
     return frappe.get_all("Country", fields=["name"])
+
+
+@frappe.whitelist(allow_guest=True)
+def register_and_subscribe(first_name, last_name, email, phone,
+                           street, city, state, postal, country,
+                           plan_name, start_date, end_date):
+    """
+    Create Customer + Address + Subscription in one go.
+    Returns the new Subscription name.
+    """
+    # 1) Customer
+    cust = frappe.get_doc({
+        "doctype": "Customer",
+        "customer_name": f"{first_name} {last_name}",
+        "email_id": email,
+        "phone": phone
+    }).insert(ignore_permissions=True)
+
+    # 2) Address
+    frappe.get_doc({
+        "doctype": "Address",
+        "address_title": f"{first_name} {last_name} Address",
+        "address_line1": street,
+        "city": city,
+        "state": state,
+        "country": country,
+        "pincode": postal,
+        "links": [{"link_doctype":"Customer", "link_name": cust.name}]
+    }).insert(ignore_permissions=True)
+
+    # 3) Subscription
+    sub = frappe.get_doc({
+        "doctype": "Subscription",
+        "party_type": "Customer",
+        "party": cust.name,
+        "start_date": start_date or nowdate(),
+        "end_date": end_date,
+        "plans": [{"plan": plan_name, "qty": 1}]
+    })
+    sub.flags.ignore_validate = True
+    sub.insert(ignore_permissions=True)
+
+    return sub.name

@@ -33,7 +33,7 @@ frappe.ready(() => {
           : 0;
         const terms = [
           { label:'Trial',      type:'trial',      months:0,  discount:0,               days: plan.trial_days },
-          { label:'Monthly',    type:'monthly',    months:1,  discount:0 },
+          { label:'Monthly',    type:'monthly',    months:1,  discount: monthlyDiscount},
           { label:'Annually',   type:'annually',   months:12, discount: monthlyDiscount },
           { label:'Biannually', type:'biannually', months:24, discount: monthlyDiscount }
         ];
@@ -147,59 +147,95 @@ frappe.ready(() => {
   // STEP 2: Create Customer → Address → Subscription
   // ────────────────────────────────────────────
   document.getElementById('btn-next').onclick = async () => {
-    // Gather all Step 2 fields
-    const first  = $('#first-name').val().trim();
-    const last   = $('#last-name').val().trim();
-    const email  = $('#cust-email').val().trim();
-    const phone  = $('#cust-phone').val().trim();
-    const street = $('#addr-street').val().trim();
-    const city   = $('#addr-city').val().trim();
-    const state  = $('#addr-state').val().trim();
-    const postal = $('#addr-postal').val().trim();
-    const country= $('#addr-country').val().trim();
-
-    if (!first || !last || !email || !street || !city || !state || !postal || !country) {
+    // 0) gather all form values:
+    const first     = $('#first-name').val().trim();
+    const last      = $('#last-name').val().trim();
+    const email     = $('#cust-email').val().trim();
+    const phone     = $('#cust-phone').val().trim();
+    const street    = $('#addr-street').val().trim();
+    const city      = $('#addr-city').val().trim();
+    const state     = $('#addr-state').val().trim();
+    const postal    = $('#addr-postal').val().trim();
+    const country   = $('#addr-country').val().trim();
+    const plan_name = window._selectedPlan.name;
+    const start     = window._selectedStartDate;
+    const end       = window._selectedEndDate;
+  
+    
+    if (!first||!last||!email||!street||!city||!state||!postal||!country) {
       return frappe.msgprint('All fields are required.');
     }
 
-    // 1) Insert Customer
-    let r = await frappe.call('frappe.client.insert', {
-      doc: {
-        doctype:      'Customer',
-        customer_name:`${first} ${last}`,
-        email_id:     email,
-        phone:        phone
+    const provCtr  = document.getElementById('provision-container');
+    document.getElementById('signup-form').style.display = 'none';
+    document.getElementById('provision-container').style.display = 'block';
+  const provBar  = document.getElementById('provision-bar');
+  const provMsg  = document.getElementById('provision-message');
+  provCtr.style.display = 'block';
+  provBar.style.width   = '0%';
+  provMsg.textContent   = 'Starting environment setup...';
+
+  const steps = [
+    { msg: "Starting environment setup...",        pct: 10 },
+    { msg: "Installing IntraERP core modules...",   pct: 30 },
+    { msg: "Configuring domain and routing...",     pct: 50 },
+    { msg: "Applying user and storage limits...",   pct: 70 },
+    { msg: "Finalizing security and permissions...", pct: 90 },
+    { msg: "Wrapping up and verifying installation...", pct: 100 }
+  ];
+  
+    // Single API call instead of three inserts:
+    let res = await frappe.call({
+      method: 'erp_saas.erp_saas.api.self_service.register_and_subscribe',
+      args: {
+        first_name:  first,
+        last_name:   last,
+        email:       email,
+        phone:       phone,
+        street:      street,
+        city:        city,
+        state:       state,
+        postal:      postal,
+        country:     country,
+        plan_name:   plan_name,
+        start_date:  start,
+        end_date:    end
+      }
+      
+   
+    });
+  
+    // r.message is the Subscription name
+    const subscriptionName = res.message;
+  
+    // Now call provisioning
+    await frappe.call({
+      method: 'erp_saas.erp_saas.api.provisioning.provision_site_remote',
+      args: { subscription_name: subscriptionName },
+      // freeze: true,
+      // freeze_message: '🔧 Provisioning your site…',
+     
+    });
+    
+    for (let step of steps) {
+      provBar.style.width     = step.pct + '%';
+      provMsg.textContent     = step.msg;
+      // pause 5 seconds per step => ~30sec total
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  
+
+    frappe.msgprint({
+      title: __('Success'),
+      message: __('Your account created! Check your email for login details.'),
+      indicator: 'green',
+      primary_action: {
+        label: __('OK'),
+        action: () => { window.location.reload(); }
       }
     });
-    const cust = r.message.name;
-
-    // 2) Insert Address
-    await frappe.call('frappe.client.insert', {
-      doc: {
-        doctype:      'Address',
-        address_title:`${first} ${last} Address`,
-        address_line1:street,
-        city, state, country,
-        pincode:      postal,
-        links:        [{ link_doctype:'Customer', link_name:cust }]
-      }
-    });
-
-    // 3) Insert Subscription
-    const plan = window._selectedPlan;
-    await frappe.call('frappe.client.insert', {
-      doc: {
-        doctype:    'Subscription',
-        party_type: 'Customer',
-        party:       cust,
-        start_date:  window._selectedStartDate,
-        end_date:    window._selectedEndDate,
-        plans:      [{ plan: plan.name, qty: 1 }]
-      }
-    });
-
-    frappe.msgprint('🎉 All set! Check your email for login info.');
   };
+  
 
   // Back to Step 1
   document.getElementById('btn-prev').onclick = () => showStep(1);

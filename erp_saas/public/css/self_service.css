@@ -206,3 +206,22 @@ nav.navbar.navbar-light.navbar-expand-lg {
 .plan-card .term-select {
   margin-top: 1.5rem;
 }
+
+.modal-dialog .btn-primary {
+  background: linear-gradient(90deg, #28a745, #20c851) !important;
+  border-color: #20c851 !important;
+  border-radius: 2rem !important;
+}
+
+#provision-container .progress {
+  background-color: #e9ecef;     /* light gray track */
+  border-radius: 2rem;           /* pill shape */
+  height: 1rem;                  /* adjust thickness as desired */
+  overflow: hidden;
+}
+
+#provision-bar {
+  background: linear-gradient(90deg, #28a745, #20c851) !important; /* green gradient */
+  border-radius: 2rem;           /* match the track’s pill shape */
+  transition: width 0.4s ease;   /* smooth fill animation */
+}

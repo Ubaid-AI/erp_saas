@@ -13,7 +13,7 @@ frappe.ui.form.on('Customer Site', {
       if (!frm.is_new()) {
         frm.call({
           method: 'erp_saas.erp_saas.api.site_config_update.get_quota_for_site',
-          args: { site_name: frm.doc.site_name },
+          args: { site_name: frm.doc.domain },
           callback: (r) => {
             const q = r.message || {};
             // simple fields

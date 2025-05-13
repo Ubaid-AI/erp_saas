@@ -112,11 +112,15 @@ doc_events = {
     },
     'File': {
         'validate': 'erp_saas.erp_saas.quota.files_space_limit'
-    },
-    "Customer Site": {
-        "on_update": "erp_saas.erp_saas.api.site_config_update.update_site_config_on_update"
     }
 }
+
+# ,
+#     "Customer Site": {
+#         "on_update": "erp_saas.erp_saas.api.site_config_update.update_site_config_on_update"
+#     }
+
+
 # Scheduled Tasks
 # ---------------
 

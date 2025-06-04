@@ -162,6 +162,14 @@ def _provision_site(subscription_doc):
         "notes": "Auto-provisioned on " + now()
     }).insert(ignore_permissions=True)
 
+    frappe.db.set_value("Subscription", subscription_doc.name, {
+        "custom_is_provisioned":     1,
+        "custom_first_password":     initial_pwd,
+        "custom_site_name":          site_name,
+        "custom_provisioning_log":   f"Provisioned site: {site_name} (domain {domain_doc.domain})"
+    }, update_modified=False)
+    frappe.db.commit()
+
     # ── SEND WELCOME EMAIL ──
     try:
         # Lookup the customer record to get their email

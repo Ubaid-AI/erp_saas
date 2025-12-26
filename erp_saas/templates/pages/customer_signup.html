@@ -2,129 +2,343 @@
 {% block page_content %}
 
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-<div class="container py-5" data-aos="fade-in">
-  <!-- <div class="card mx-auto shadow-lg" style="max-width: 1200px; border-radius: 1rem;"> -->
-    <div class="card-body p-4">
+<div class="container-fluid signup-container py-5" data-aos="fade-in">
+  
+  <!-- Progress Indicator -->
+  <div class="progress-indicator mb-5">
+    <div class="progress-steps">
+      <div class="progress-step active" data-step="1">
+        <div class="step-circle">1</div>
+        <div class="step-label">Choose Plan</div>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" data-step="2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Your Information</div>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" data-step="3">
+        <div class="step-circle">3</div>
+        <div class="step-label">Review & Confirm</div>
+      </div>
+    </div>
+  </div>
 
-
-      <!-- STEP 1: Plan Selection -->
-      <section id="step-1" class="wizard-step">
-        <h1 class="h3 text-center mb-4">Choose the Best Plan for Your Projects</h1>
-        <div id="plans-container" class="row g-3"></div>
-      </section>
+  <div class="wizard-container">
+    
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- STEP 1: PLAN SELECTION -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="step-1" class="wizard-step">
+      <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold mb-2">Choose the Perfect Plan</h1>
+        <p class="text-muted">Select a plan that best fits your business needs</p>
+      </div>
+      <div id="plans-container" class="row g-4 justify-content-center"></div>
       
-      <!-- STEP 2: Customer Info -->
-      <section id="step-2" class="wizard-step" style="display:none;">
-        <div class="card mx-auto shadow-lg" style="max-width:520px; border-radius:1rem; padding:2rem;">
+      <div class="trust-badges mt-5 text-center">
+        <span class="badge-item"><i class="fas fa-lock"></i> Secure Signup</span>
+        <span class="badge-item"><i class="fas fa-check-circle"></i> No Credit Card Required</span>
+        <span class="badge-item"><i class="fas fa-bolt"></i> Instant Setup</span>
+        <span class="badge-item"><i class="fas fa-headset"></i> 24/7 Support</span>
+      </div>
+    </section>
 
-          <div id="provision-container" style="display:none; margin-bottom:1.5rem;">
-            <div class="progress">
-              <div id="provision-bar" class="progress-bar" role="progressbar" style="width:0%;transition:width .4s;"></div>
-            </div>
-            <div id="provision-message" class="small text-muted mt-2"></div>
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- STEP 2: CUSTOMER INFORMATION -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="step-2" class="wizard-step" style="display:none;">
+      <div class="card mx-auto shadow-lg" style="max-width:650px; border-radius:1rem;">
+        <div class="card-body p-4 p-md-5">
+          
+          <div class="text-center mb-4">
+            <h2 class="h3 mb-2">Tell Us About Yourself</h2>
+            <p class="text-muted small">We'll use this information to set up your account</p>
           </div>
-          <!-- <h1 class="h3 text-center mb-4">Tell Us About You</h1> -->
-      
+
           <form id="signup-form">
-      
-            <!-- First + Last -->
-            <div class="row g-3 mb-3">
-              <div class="col form-group">
-                <label for="first-name" class="form-label">First Name</label>
-                <input type="text" id="first-name"
-                       class="form-control"
-                       placeholder="First Name" />
-              </div>
-              <div class="col form-group">
-                <label for="last-name" class="form-label">Last Name</label>
-                <input type="text" id="last-name"
-                       class="form-control"
-                       placeholder="Last Name" />
-              </div>
-            </div>
-      
-            <!-- Email + Phone -->
-            <div class="row g-3 mb-3">
-              <div class="col form-group">
-                <label for="cust-email" class="form-label">Email Address</label>
-                <input type="email" id="cust-email"
-                       class="form-control"
-                       placeholder="you@example.com" />
-              </div>
-              <div class="col form-group">
-                <label for="cust-phone" class="form-label">Phone (optional)</label>
-                <input type="tel" id="cust-phone"
-                       class="form-control"
-                       placeholder="+1-555-123-4567" />
+            
+            <!-- Personal Information -->
+            <div class="form-section mb-4">
+              <h6 class="section-title">
+                <i class="fas fa-user"></i> Personal Information
+              </h6>
+              
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="first-name" class="form-label required">First Name</label>
+                    <div class="input-with-tooltip">
+                      <input type="text" id="first-name" class="form-control" placeholder="John" required/>
+                      <span class="info-icon" title="Your given name as it appears on official documents">
+                        <i class="fas fa-info-circle"></i>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="last-name" class="form-label required">Last Name</label>
+                    <input type="text" id="last-name" class="form-control" placeholder="Doe" required/>
+                  </div>
+                </div>
               </div>
             </div>
-      
-            <!-- Street -->
-            <div class="form-group mb-3">
-              <label for="addr-street" class="form-label">Street Address</label>
-              <input type="text" id="addr-street"
-                     class="form-control"
-                     placeholder="123 Main St" />
+
+            <!-- Contact Information -->
+            <div class="form-section mb-4">
+              <h6 class="section-title">
+                <i class="fas fa-envelope"></i> Contact Information
+              </h6>
+              
+              <div class="form-group mb-3">
+                <label for="cust-email" class="form-label required">Email Address</label>
+                <div class="input-with-tooltip">
+                  <input type="email" id="cust-email" class="form-control" placeholder="you@example.com" required/>
+                  <span class="info-icon" title="We'll send your login credentials to this email">
+                    <i class="fas fa-info-circle"></i>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Email OTP Verification -->
+              <div class="otp-verification-box mb-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <button type="button" id="btn-send-otp" class="btn-send-otp">
+                    <i class="fas fa-paper-plane"></i> Send Verification Code
+                  </button>
+                  <small class="text-muted">Verify your email to continue</small>
+                </div>
+                
+                <div id="otp-input-section" style="display: none;">
+                  <div class="row g-2 mt-2">
+                    <div class="col-12">
+                      <input type="text" id="email-otp" class="form-control form-control-otp" 
+                             placeholder="Enter 6-digit code" maxlength="6" 
+                             pattern="[0-9]{6}" inputmode="numeric" />
+                    </div>
+                  </div>
+                  <div id="otp-status" class="mt-2 text-center"></div>
+                  <div id="otp-timer" class="mt-1 text-center small text-muted"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="cust-phone" class="form-label">Phone Number <span class="text-muted small">(Optional)</span></label>
+                <input type="tel" id="cust-phone" class="form-control" placeholder="+1-555-123-4567"/>
+              </div>
             </div>
-      
-            <!-- City + State -->
-            <div class="row g-3 mb-3">
-              <div class="col form-group">
-                <label for="addr-city" class="form-label">City/Town</label>
-                <input type="text" id="addr-city"
-                       class="form-control"
-                       placeholder="City" />
+
+            <!-- Billing Address -->
+            <div class="form-section mb-4">
+              <h6 class="section-title">
+                <i class="fas fa-map-marker-alt"></i> Billing Address
+              </h6>
+              
+              <div class="form-group mb-3">
+                <label for="addr-street" class="form-label required">Street Address</label>
+                <input type="text" id="addr-street" class="form-control" placeholder="123 Main Street" required/>
               </div>
-              <div class="col form-group">
-                <label for="addr-state" class="form-label">State/Province</label>
-                <input type="text" id="addr-state"
-                       class="form-control"
-                       placeholder="State" />
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="addr-city" class="form-label required">City</label>
+                    <input type="text" id="addr-city" class="form-control" placeholder="New York" required/>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="addr-state" class="form-label required">State/Province</label>
+                    <input type="text" id="addr-state" class="form-control" placeholder="NY" required/>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="addr-postal" class="form-label required">Postal Code</label>
+                    <input type="text" id="addr-postal" class="form-control" placeholder="10001" required/>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="addr-country" class="form-label required">Country</label>
+                    <input list="country-list" id="addr-country" class="form-control" placeholder="United States" required/>
+                    <datalist id="country-list"></datalist>
+                  </div>
+                </div>
               </div>
             </div>
-      
-            <!-- Postal + Country -->
-            <div class="row g-3 mb-4">
-              <div class="col form-group">
-                <label for="addr-postal" class="form-label">Postal Code</label>
-                <input type="text" id="addr-postal"
-                       class="form-control"
-                       placeholder="Postal Code" />
-              </div>
-              <div class="col form-group">
-                <label for="addr-country" class="form-label">Country</label>
-                <input list="country-list" id="addr-country"
-                       class="form-control"
-                       placeholder="Country" />
-                <datalist id="country-list"></datalist>
-              </div>
-            </div>
-      
-            <!-- Buttons -->
-            <div class="d-flex justify-content-between">
-              <button type="button" id="btn-prev" class="btn btn-back">
-                ← Back
+
+            <!-- Navigation Buttons -->
+            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+              <button type="button" id="btn-prev" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Plans
               </button>
-              <button type="button" id="btn-next" class="btn btn-started">
-                Create Account
+              <button type="button" id="btn-to-review" class="btn btn-primary btn-lg" disabled>
+                Continue to Review <i class="fas fa-arrow-right"></i>
               </button>
             </div>
-      
+
           </form>
         </div>
-      </section>
-      
-      
-      
-      
+      </div>
+    </section>
 
-    </div>
-  <!-- </div> -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- STEP 3: REVIEW & CONFIRM -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="step-3" class="wizard-step" style="display:none;">
+      <div class="card mx-auto shadow-lg" style="max-width:700px; border-radius:1rem;">
+        <div class="card-body p-4 p-md-5">
+          
+          <div id="review-content">
+            <div class="text-center mb-4">
+              <h2 class="h3 mb-2">Review Your Order</h2>
+              <p class="text-muted small">Please review your information before creating your account</p>
+            </div>
+
+            <!-- Selected Plan Review -->
+            <div class="review-section mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="section-title mb-0">
+                  <i class="fas fa-box"></i> Selected Plan
+                </h6>
+                <button type="button" id="btn-edit-plan" class="btn btn-sm btn-link">
+                  <i class="fas fa-edit"></i> Change Plan
+                </button>
+              </div>
+              
+              <div class="review-card">
+                <div class="row">
+                  <div class="col-8">
+                    <div class="mb-2">
+                      <strong id="review-plan-name">-</strong>
+                    </div>
+                    <div class="text-muted small">
+                      <span id="review-term">-</span>
+                    </div>
+                  </div>
+                  <div class="col-4 text-end">
+                    <div class="h5 mb-0 text-primary" id="review-price">-</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Information Review -->
+            <div class="review-section mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="section-title mb-0">
+                  <i class="fas fa-user"></i> Your Information
+                </h6>
+                <button type="button" id="btn-back-to-info" class="btn btn-sm btn-link">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+              </div>
+              
+              <div class="review-card">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="review-item">
+                      <div class="review-label">Name</div>
+                      <div class="review-value" id="review-name">-</div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="review-item">
+                      <div class="review-label">Email</div>
+                      <div class="review-value" id="review-email">-</div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="review-item">
+                      <div class="review-label">Phone</div>
+                      <div class="review-value" id="review-phone">-</div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="review-item">
+                      <div class="review-label">Billing Address</div>
+                      <div class="review-value" id="review-address">-</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Information (for non-trial) -->
+            <div class="alert alert-info mb-4">
+              <i class="fas fa-info-circle"></i>
+              <strong>Payment Notice:</strong> 
+              For trial plans, no payment is required now. You'll be notified before your trial ends.
+              For paid plans, payment details will be collected after your account is set up.
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="form-check mb-4">
+              <input class="form-check-input" type="checkbox" id="terms-agree" required>
+              <label class="form-check-label small" for="terms-agree">
+                I agree to the <a href="/terms" target="_blank">Terms of Service</a> and 
+                <a href="/privacy" target="_blank">Privacy Policy</a>
+              </label>
+            </div>
+
+            <!-- Final Submit Button -->
+            <div class="d-grid gap-2">
+              <button type="button" id="btn-final-submit" class="btn btn-success btn-lg">
+                <i class="fas fa-rocket"></i> Create My Account
+              </button>
+              <button type="button" id="btn-back-to-info-2" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Information
+              </button>
+            </div>
+          </div>
+
+          <!-- Provisioning Progress (Hidden by default) -->
+          <div id="provision-container" style="display:none;">
+            <div class="text-center mb-4">
+              <!-- Modern Gear Loading Animation -->
+              <div class="loading-gears">
+                <div class="gear gear-large">
+                  <i class="fas fa-cog"></i>
+                </div>
+                <div class="gear gear-small">
+                  <i class="fas fa-cog"></i>
+                </div>
+                <div class="gear gear-medium">
+                  <i class="fas fa-cog"></i>
+                </div>
+              </div>
+              <h5 class="mt-4 mb-2 provision-title">Setting Up Your Account</h5>
+              <p class="text-muted provision-subtitle">Please wait while we configure your workspace...</p>
+            </div>
+            
+            <div class="progress mb-3" style="height: 25px;">
+              <div id="provision-bar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                   role="progressbar" style="width:0%;">
+                <span class="progress-text">0%</span>
+              </div>
+            </div>
+            
+            <div id="provision-message" class="text-center text-muted small">
+              Preparing your environment...
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </div>
 </div>
 
 <link rel="stylesheet" href="/assets/erp_saas/css/self_service.css"/>
 <script src="/assets/erp_saas/js/customer_signup.js"></script>
-<script> AOS.init({ duration:600, once:true }); </script>
+
 {% endblock %}

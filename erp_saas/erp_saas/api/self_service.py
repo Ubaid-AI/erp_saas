@@ -1,6 +1,223 @@
 import frappe
+import random
+import string
+from frappe.utils import nowdate, now_datetime, add_to_date, get_datetime
 
-from frappe.utils import nowdate
+@frappe.whitelist(allow_guest=True)
+def send_email_otp(email):
+    """
+    Generate and send a 6-digit OTP to the provided email.
+    Stores OTP in database (tabSingles) for reliable cross-worker access.
+    """
+    if not email:
+        return {'success': False, 'message': 'Email is required'}
+    
+    # Normalize email: lowercase and trim
+    email = email.strip().lower()
+    
+    # Validate email format
+    import re
+    if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+        return {'success': False, 'message': 'Invalid email format'}
+    
+    # Generate 6-digit OTP
+    otp = ''.join(random.choices(string.digits, k=6))
+    
+    # Calculate expiry time (10 minutes from now)
+    expiry = add_to_date(now_datetime(), minutes=10)
+    
+    # Delete any existing OTP for this email
+    frappe.db.sql("""
+        DELETE FROM `tabSingles` 
+        WHERE doctype = 'EmailOTP' 
+        AND field = %s
+    """, (email,))
+    
+    # Store new OTP in database using tabSingles
+    frappe.db.sql("""
+        INSERT INTO `tabSingles` (doctype, field, value) 
+        VALUES ('EmailOTP', %s, %s)
+    """, (email, f"{otp}|{expiry}|0"))
+    
+    frappe.db.commit()
+    
+    frappe.logger().info(f"OTP stored in DB for email: {email}, OTP: {otp}, Expiry: {expiry}")
+    
+    # Send email using the same method as provisioning
+    try:
+        frappe.sendmail(
+            recipients=[email],
+            subject="Your Email Verification Code - RiyalERP",
+            message=f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #1F1F1F; text-align: center;">Email Verification</h2>
+                    <p style="font-size: 16px;">Thank you for signing up with RiyalERP!</p>
+                    <p style="font-size: 16px;">Your verification code is:</p>
+                    <div style="background: linear-gradient(135deg, #1F1F1F, #2f2f2f); padding: 30px; text-align: center; border-radius: 10px; margin: 30px 0;">
+                        <h1 style="color: #ffffff; font-size: 48px; letter-spacing: 10px; margin: 0; font-weight: bold;">{otp}</h1>
+                    </div>
+                    <p style="font-size: 14px; color: #666;">This code will expire in <strong>10 minutes</strong>.</p>
+                    <p style="font-size: 14px; color: #666;">Please enter this code in the signup form to verify your email address.</p>
+                    <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+                    <p style="color: #999; font-size: 12px; text-align: center;">If you didn't request this code, please ignore this email.</p>
+                    <p style="color: #999; font-size: 12px; text-align: center;">© RiyalERP - All rights reserved</p>
+                </div>
+            """,
+            now=True
+        )
+        
+        frappe.logger().info(f"OTP sent to {email}: {otp}")  # Log for debugging
+        
+        return {
+            'success': True,
+            'message': 'Verification code sent successfully! Please check your email.',
+            'otp': otp  # For testing - REMOVE IN PRODUCTION
+        }
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "OTP Email Send Failed")
+        frappe.logger().error(f"Failed to send OTP to {email}: {str(e)}")
+        return {
+            'success': False,
+            'message': f'Failed to send email. Please check your email address or try again later.'
+        }
+
+
+@frappe.whitelist(allow_guest=True)
+def verify_email_otp(email, otp):
+    """
+    Verify the OTP for the provided email.
+    Retrieves OTP from database (tabSingles) for reliable verification.
+    """
+    try:
+        if not email or not otp:
+            return {'verified': False, 'message': 'Email and OTP are required'}
+        
+        # Normalize email: lowercase and trim (same as send_email_otp)
+        email = email.strip().lower()
+        otp = otp.strip()
+        
+        frappe.logger().info(f"Verifying OTP for email: {email}, OTP: {otp}")
+        
+        # Get OTP data from database using direct SQL
+        result = frappe.db.sql("""
+            SELECT value 
+            FROM `tabSingles` 
+            WHERE doctype = 'EmailOTP' 
+            AND field = %s
+            LIMIT 1
+        """, (email,), as_dict=False)
+        
+        if not result or not result[0][0]:
+            frappe.logger().error(f"No OTP found in DB for email: {email}")
+            return {'verified': False, 'message': 'No verification code found. Please request a new code.'}
+        
+        stored_value = result[0][0]
+        frappe.logger().info(f"Retrieved from DB: {stored_value}")
+        
+        # Parse stored value: format is "otp|expiry|attempts"
+        try:
+            parts = stored_value.split('|')
+            stored_otp = parts[0]
+            expiry_str = parts[1]
+            attempts = int(parts[2]) if len(parts) > 2 else 0
+        except Exception as e:
+            frappe.logger().error(f"Error parsing OTP data: {e}, stored_value: {stored_value}")
+            return {'verified': False, 'message': 'Invalid OTP data. Please request a new code.'}
+        
+        frappe.logger().info(f"Stored OTP: '{stored_otp}', Entered OTP: '{otp}', Attempts: {attempts}")
+        
+        # Check expiry
+        expiry = get_datetime(expiry_str)
+        if now_datetime() > expiry:
+            # Delete expired OTP
+            frappe.db.sql("""
+                DELETE FROM `tabSingles` 
+                WHERE doctype = 'EmailOTP' 
+                AND field = %s
+            """, (email,))
+            frappe.db.commit()
+            frappe.logger().warning(f"OTP expired for email: {email}")
+            return {'verified': False, 'message': 'Verification code has expired. Please request a new code.'}
+        
+        # Check attempts
+        if attempts >= 3:
+            # Delete OTP after too many attempts
+            frappe.db.sql("""
+                DELETE FROM `tabSingles` 
+                WHERE doctype = 'EmailOTP' 
+                AND field = %s
+            """, (email,))
+            frappe.db.commit()
+            frappe.logger().warning(f"Too many attempts for email: {email}")
+            return {'verified': False, 'message': 'Too many failed attempts. Please request a new code.'}
+        
+        # Verify OTP
+        if stored_otp == otp:
+            # Delete OTP after successful verification
+            frappe.db.sql("""
+                DELETE FROM `tabSingles` 
+                WHERE doctype = 'EmailOTP' 
+                AND field = %s
+            """, (email,))
+            frappe.db.commit()
+            frappe.logger().info(f"✓ OTP verified successfully for {email}")
+            return {
+                'verified': True,
+                'message': 'Email verified successfully!'
+            }
+        else:
+            # Increment attempts and update database
+            attempts += 1
+            frappe.db.sql("""
+                UPDATE `tabSingles` 
+                SET value = %s 
+                WHERE doctype = 'EmailOTP' 
+                AND field = %s
+            """, (f"{stored_otp}|{expiry_str}|{attempts}", email))
+            frappe.db.commit()
+            
+            remaining = 3 - attempts
+            frappe.logger().warning(f"✗ Invalid OTP for email: {email}. Stored: '{stored_otp}' vs Entered: '{otp}'. Attempts remaining: {remaining}")
+            return {
+                'verified': False,
+                'message': f'Invalid code. {remaining} attempt{"s" if remaining != 1 else ""} remaining.'
+            }
+    except Exception as e:
+        frappe.logger().error(f"Exception in verify_email_otp: {str(e)}")
+        frappe.log_error(frappe.get_traceback(), "OTP Verification Error")
+        return {
+            'verified': False,
+            'message': 'Verification failed. Please try again or request a new code.'
+        }
+
+
+@frappe.whitelist(allow_guest=True)
+def debug_check_otp(email):
+    """
+    Debug function to check what OTP is stored for an email.
+    """
+    email = email.strip().lower()
+    
+    result = frappe.db.sql("""
+        SELECT field, value, doctype 
+        FROM `tabSingles` 
+        WHERE doctype = 'EmailOTP' 
+        AND field = %s
+    """, (email,), as_dict=True)
+    
+    all_otps = frappe.db.sql("""
+        SELECT field, value, doctype 
+        FROM `tabSingles` 
+        WHERE doctype = 'EmailOTP'
+    """, as_dict=True)
+    
+    return {
+        'email': email,
+        'found': bool(result),
+        'data': result[0] if result else None,
+        'all_otps': all_otps
+    }
+
 
 @frappe.whitelist(allow_guest=True)
 def get_published_plans():

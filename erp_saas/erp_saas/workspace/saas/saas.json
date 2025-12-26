@@ -1,0 +1,86 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"-qf9oR9EYZ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">SaaS</span>\",\"col\":12}},{\"id\":\"dEmUHBugla\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Subscription\",\"col\":4}},{\"id\":\"R0hr0bhvlp\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Domain\",\"col\":4}},{\"id\":\"uxuK3Ms5Er\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Available Sub-Domain\",\"col\":4}},{\"id\":\"f_giJgfzBg\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"jQT0fNp9UG\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Customer Subscription\",\"col\":4}},{\"id\":\"_IXCp1mE3R\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Saas Sub-Domain\",\"col\":4}},{\"id\":\"d9SM28Nuq_\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"xGl_AKjXMY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Subscription\",\"col\":3}},{\"id\":\"eQ3LyrjYY7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Subscription Plan\",\"col\":3}},{\"id\":\"G42ITTwGGp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Subscription\",\"col\":3}},{\"id\":\"0JtQgY5Wd7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Saas Domain\",\"col\":3}}]",
+ "creation": "2025-07-10 14:23:59.934395",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "image-view",
+ "idx": 1,
+ "indicator_color": "",
+ "is_hidden": 0,
+ "label": "SaaS",
+ "links": [],
+ "modified": "2025-09-04 13:31:02.432684",
+ "modified_by": "Administrator",
+ "module": "Erp SaaS",
+ "name": "SaaS",
+ "number_cards": [
+  {
+   "label": "Total Subscription",
+   "number_card_name": "Active Sites"
+  },
+  {
+   "label": "Available Sub-Domain",
+   "number_card_name": "Available Sub-Domain"
+  },
+  {
+   "label": "Total Domain",
+   "number_card_name": "Total Domain"
+  }
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [
+  {
+   "document_type": "Customer Site",
+   "label": "Customer Subscription",
+   "quick_list_filter": "[]"
+  },
+  {
+   "document_type": "Saas Domain",
+   "label": "Saas Sub-Domain",
+   "quick_list_filter": "[]"
+  }
+ ],
+ "roles": [],
+ "sequence_id": 1.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Subscription",
+   "link_to": "Subscription",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Subscription Plan",
+   "link_to": "Subscription Plan",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Customer Subscription",
+   "link_to": "Customer Site",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Saas Domain",
+   "link_to": "Saas Domain",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "SaaS"
+}

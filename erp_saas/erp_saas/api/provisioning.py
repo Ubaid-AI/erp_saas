@@ -52,7 +52,7 @@ def _provision_site(subscription_doc):
         publish_progress(50, "Creating site…")
         subprocess.run([
             BENCH_CMD, "new-site", site_name,
-            "--mariadb-root-password", "frappe",
+            "--mariadb-root-password", "Intra$234",
             "--admin-password", initial_pwd
         ], check=True, cwd=BENCH_PATH)
 
@@ -60,6 +60,7 @@ def _provision_site(subscription_doc):
         
         subprocess.run([BENCH_CMD, "--site", site_name, "install-app", "erpnext"], check=True, cwd=BENCH_PATH)
         subprocess.run([BENCH_CMD, "--site", site_name, "install-app", "erp_saas"], check=True, cwd=BENCH_PATH)
+        subprocess.run([BENCH_CMD, "--site", site_name, "install-app", "havenir_hotel_erpnext"], check=True, cwd=BENCH_PATH)
     except subprocess.CalledProcessError as e:
         frappe.log_error(title="Provisioning Error", message=f"App install failed for site {site_name}: {e}")
         frappe.throw("Provisioning failed while installing apps. Please check bench logs.")
@@ -73,8 +74,8 @@ def _provision_site(subscription_doc):
         config = json.load(f)
 
         # Add central API credentials first
-        config["central_api_key"] = "44abcc441fb9c51"
-        config["central_api_secret"] = "4df562751154543"
+        config["central_api_key"] = "83cca29169df526"
+        config["central_api_secret"] = "24971f2ded7a0f4"
         config["central_api_user"] = "Administrator"
 
         # Add updated quota block
@@ -176,20 +177,151 @@ def _provision_site(subscription_doc):
         cust = frappe.get_doc("Customer", subscription_doc.party)
         recipient = cust.email_id   # use the built-in email_id field
         if recipient:
-            subject = "IntraERP account created"
+            subject = "🎉 Welcome to RiyalERP - Your Account is Ready!"
             body = f"""
-                <b>Hello {cust.customer_name}</b>,<br><br>
-                Your IntraERP account has been successfully created.<br>
-                Here are your initial login details:<br><br>
-                <b>Login URL:</b> {site_name}<br>
-                <b>Username:</b> Administrator<br>
-                <b>Password:</b> {initial_pwd}<br><br>
-                <b>Important Note:</b><br>
-                This password is only valid for your first login. You will be prompted to set a new password during the setup process. Make sure to store your new credentials securely.<br>
-                If you have any questions or need assistance, feel free to contact our support team.<br><br>
-                Welcome aboard,<br>
-                The IntraERP Team
-                """.strip()
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to RiyalERP</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;" cellpadding="0" cellspacing="0">
+        <tr>
+            <td style="padding: 40px 20px;">
+                <!-- Main Container -->
+                <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);" cellpadding="0" cellspacing="0">
+                    
+                    <!-- Header with Gradient -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #1F1F1F 0%, #2f2f2f 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">
+                                🎉 Welcome to RiyalERP!
+                            </h1>
+                            <p style="margin: 10px 0 0; color: #e0e0e0; font-size: 16px; font-weight: 400;">
+                                Your business management platform is ready
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="margin: 0 0 20px; color: #2f2f2f; font-size: 16px; line-height: 1.6;">
+                                Hello <strong>{cust.customer_name}</strong>,
+                            </p>
+                            <p style="margin: 0 0 30px; color: #555555; font-size: 16px; line-height: 1.6;">
+                                Great news! Your RiyalERP account has been successfully created and is ready to use. We're excited to have you on board! 🚀
+                            </p>
+                            
+                            <!-- Login Details Card -->
+                            <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #e9ecef; border-radius: 12px; padding: 30px; margin-bottom: 30px;">
+                                <h2 style="margin: 0 0 20px; color: #1F1F1F; font-size: 20px; font-weight: 700;">
+                                    🔑 Your Login Credentials
+                                </h2>
+                                
+                                <table role="presentation" style="width: 100%; border-collapse: collapse;" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td style="padding: 12px 0; border-bottom: 1px solid #e9ecef;">
+                                            <span style="color: #6c757d; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Login URL</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 12px 0; border-bottom: 1px solid #e9ecef;">
+                                            <a href="https://{site_name}" style="color: #1F1F1F; font-size: 16px; font-weight: 600; text-decoration: none; word-break: break-all;">
+                                                🌐 https://{site_name}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td style="padding: 12px 0; padding-top: 20px; border-bottom: 1px solid #e9ecef;">
+                                            <span style="color: #6c757d; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Username</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 12px 0; border-bottom: 1px solid #e9ecef;">
+                                            <span style="color: #1F1F1F; font-size: 16px; font-weight: 600; font-family: 'Courier New', monospace;">
+                                                👤 Administrator
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td style="padding: 12px 0; padding-top: 20px; border-bottom: 1px solid #e9ecef;">
+                                            <span style="color: #6c757d; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Temporary Password</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 12px 0;">
+                                            <span style="color: #1F1F1F; font-size: 18px; font-weight: 700; font-family: 'Courier New', monospace; background: #fff3cd; padding: 8px 16px; border-radius: 6px; display: inline-block;">
+                                                🔐 {initial_pwd}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <!-- Important Notice -->
+                            <div style="background: linear-gradient(135deg, #fff3cd 0%, #fff9e6 100%); border-left: 4px solid #ffc107; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+                                <p style="margin: 0 0 10px; color: #856404; font-size: 14px; font-weight: 700;">
+                                    ⚠️ IMPORTANT SECURITY NOTICE
+                                </p>
+                                <p style="margin: 0; color: #856404; font-size: 14px; line-height: 1.6;">
+                                    This is a <strong>temporary password</strong> for your first login only. You will be required to create a new secure password when you log in. Please store your new credentials safely.
+                                </p>
+                            </div>
+                            
+                            <!-- CTA Button -->
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="https://{site_name}" style="display: inline-block; background: linear-gradient(90deg, #1F1F1F, #2f2f2f); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 700; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); transition: all 0.3s ease;">
+                                    🚀 Access Your Account Now
+                                </a>
+                            </div>
+                            
+                            <!-- Next Steps -->
+                            <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                                <h3 style="margin: 0 0 15px; color: #1F1F1F; font-size: 16px; font-weight: 700;">
+                                    📋 Next Steps
+                                </h3>
+                                <ul style="margin: 0; padding-left: 20px; color: #555555; font-size: 14px; line-height: 1.8;">
+                                    <li>Click the button above to access your account</li>
+                                    <li>Log in using the credentials provided</li>
+                                    <li>Set up your new secure password</li>
+                                    <li>Complete your company profile</li>
+                                    <li>Start exploring RiyalERP features</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Support -->
+                            <p style="margin: 30px 0 0; color: #6c757d; font-size: 14px; line-height: 1.6; text-align: center;">
+                                Need help getting started? Our support team is here for you!<br>
+                                <a href="mailto:support@riyalerp.com" style="color: #1F1F1F; text-decoration: none; font-weight: 600;">📧 support@riyalerp.com</a>
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef;">
+                            <p style="margin: 0 0 10px; color: #2f2f2f; font-size: 16px; font-weight: 600;">
+                                Welcome to the RiyalERP family! 🎊
+                            </p>
+                            <p style="margin: 0; color: #6c757d; font-size: 13px; line-height: 1.6;">
+                                © 2024 RiyalERP. All rights reserved.<br>
+                                This is an automated message, please do not reply to this email.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+            """.strip()
 
             frappe.sendmail(
                 recipients=[recipient],
@@ -244,7 +376,7 @@ def handle_first_login(login_manager):
         return
 
     # 3) Prepare API call to update password in central site
-    url = "https://cl1.intraerp.com/api/method/erp_saas.erp_saas.api.update_pass.update_password_for_site"
+    url = "https://erp.arabapp.com.sa/api/method/erp_saas.erp_saas.api.update_pass.update_password_for_site"
     headers = {
         "Authorization": f"token {api_key}:{api_secret}"
     }

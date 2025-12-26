@@ -6,9 +6,24 @@ frappe.ready(() => {
   // ────────────────────────────────────────────
   function showStep(n) {
     document.querySelectorAll('.wizard-step').forEach(s => s.style.display = 'none');
-    document.getElementById(`step-${n}`).style.display = 'block';
-    const bar = document.getElementById('wizard-progress');
-    if (bar) bar.style.width = (n === 1 ? 50 : 100) + '%';
+    const stepEl = document.getElementById(`step-${n}`);
+    if (stepEl) {
+      stepEl.style.display = 'block';
+    }
+    
+    // Update progress indicator if exists
+    const progressSteps = document.querySelectorAll('.progress-step');
+    progressSteps.forEach((step, idx) => {
+      if (idx < n) {
+        step.classList.add('completed');
+        step.classList.remove('active');
+      } else if (idx === n - 1) {
+        step.classList.add('active');
+        step.classList.remove('completed');
+      } else {
+        step.classList.remove('completed', 'active');
+      }
+    });
   }
 
   // ────────────────────────────────────────────
@@ -22,8 +37,13 @@ frappe.ready(() => {
       );
       const data = await res.json();
       const plans = data.message || [];
+      console.log('Plans loaded:', plans.length);
 
       const container = document.getElementById('plans-container');
+      if (!container) {
+        console.error('plans-container not found!');
+        return;
+      }
       container.innerHTML = '';
 
       plans.forEach(plan => {
@@ -38,13 +58,26 @@ frappe.ready(() => {
           { label:'Biannually', type:'biannually', months:24, discount: monthlyDiscount }
         ];
 
-        // 2) Create card column
+        // 2) Create card column - RESPONSIVE
         const col = document.createElement('div');
-        col.className = 'col-md-3';
+        col.className = 'col-12 col-sm-6 col-lg-3 mb-3';
+        
+        // Escape HTML to prevent XSS
+        const escapePlanName = plan.plan_name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const escapeDocType = (plan.doc_type || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        
         col.innerHTML = `
           <div class="plan-card ${plan.hot ? 'hot' : ''}">
-            ${plan.hot ? `<div class="hot-badge">Most Popular</div>` : ''}
-            <h5 class="plan-title">${plan.plan_name}</h5>
+            ${plan.hot ? `<div class="hot-badge">⭐ Most Popular</div>` : ''}
+            
+            <div class="term-select mb-3">
+              <label class="term-label">Select Billing Term:</label>
+              <select class="form-control">
+                ${terms.map(t => `<option value="${t.type}">${t.label}</option>`).join('')}
+              </select>
+            </div>
+            
+            <h5 class="plan-title">${escapePlanName}</h5>
 
             <div class="price-block mb-3">
               <span class="old-price"></span>
@@ -53,28 +86,22 @@ frappe.ready(() => {
               <div class="total-price"></div>
             </div>
 
-            <ul class="list-unstyled mb-4">
-              <li><strong>Users:</strong> ${plan.max_users}</li>
-              <li><strong>Companies:</strong> ${plan.max_companies}</li>
-              <li><strong>DB MB:</strong> ${plan.db_storage_mb}</li>
-              <li><strong>Storage MB:</strong> ${plan.storage_mb}</li>
-              <li><strong>Private MB:</strong> ${plan.private_files_mb}</li>
-              <li><strong>Public MB:</strong> ${plan.public_files_mb}</li>
-              <li><strong>${plan.doc_type}:</strong> ${plan.doc_limit} / ${plan.doc_period}</li>
+            <ul class="features-list list-unstyled mb-4">
+              <li class="feature-item">👥 <strong>Users:</strong> ${plan.max_users} <span class="checkmark">✓</span></li>
+              <li class="feature-item">🏢 <strong>Companies:</strong> ${plan.max_companies} <span class="checkmark">✓</span></li>
+              <li class="feature-item">💾 <strong>DB Storage:</strong> ${plan.db_storage_mb} MB ${plan.db_storage_mb > 0 ? '<span class="checkmark">✓</span>' : '<span class="crossmark">✗</span>'}</li>
+              <li class="feature-item">📦 <strong>Storage:</strong> ${plan.storage_mb} MB ${plan.storage_mb > 0 ? '<span class="checkmark">✓</span>' : '<span class="crossmark">✗</span>'}</li>
+              <li class="feature-item">🔒 <strong>Private Files:</strong> ${plan.private_files_mb} MB ${plan.private_files_mb > 0 ? '<span class="checkmark">✓</span>' : '<span class="crossmark">✗</span>'}</li>
+              <li class="feature-item">🌐 <strong>Public Files:</strong> ${plan.public_files_mb} MB ${plan.public_files_mb > 0 ? '<span class="checkmark">✓</span>' : '<span class="crossmark">✗</span>'}</li>
+              ${plan.doc_type ? `<li class="feature-item">📄 <strong>${escapeDocType}:</strong> ${plan.doc_limit}/${plan.doc_period} <span class="checkmark">✓</span></li>` : ''}
             </ul>
 
-            <button class="btn-started choose-plan mt-auto">Choose plan</button>
+            <button class="btn-started choose-plan mt-auto">Choose Plan</button>
           </div>`;
 
-        // 3) Inject term selector into the card
+        // 3) Get references
         const card = col.querySelector('.plan-card');
-        const selectHtml = `
-          <div class="term-select mb-3">
-            <select class="form-control form-control-lg">
-              ${terms.map(t => `<option value="${t.type}">${t.label}</option>`).join('')}
-            </select>
-          </div>`;
-        card.insertAdjacentHTML('afterbegin', selectHtml);
+        const sel = card.querySelector('select');
 
         // 4) Pricing update helper
         function updatePricing(term) {
@@ -86,11 +113,10 @@ frappe.ready(() => {
           if (term.type === 'trial') {
             oldEl.textContent    = '';
             saveEl.style.display = 'none';
-            curEl.textContent    = `${term.days} days Trial!`;
+            curEl.innerHTML    = `<span class="trial-badge">🎉 ${term.days} Days Free Trial!</span>`;
             totEl.textContent    = '';
           } else {
-            // always show per-month figures
-            oldEl.textContent = `${plan.currency}${plan.old_price.toLocaleString()}/mo`;
+            oldEl.textContent = plan.old_price > plan.cost ? `${plan.currency}${plan.old_price.toLocaleString()}/mo` : '';
             if (term.discount > 0) {
               saveEl.textContent   = `SAVE ${Math.round(term.discount * 100)}%`;
               saveEl.style.display = 'inline-block';
@@ -99,7 +125,6 @@ frappe.ready(() => {
             }
             curEl.textContent = `${plan.currency}${plan.cost.toLocaleString()}/mo`;
 
-            // only multi-month terms show a total line
             if (term.months > 1) {
               totEl.textContent = `${plan.currency}${(plan.cost * term.months).toLocaleString()} total`;
             } else {
@@ -108,12 +133,12 @@ frappe.ready(() => {
           }
         }
 
-        // 5) Wire up <select>
-        const sel = card.querySelector('select');
-        const defaultTerm = terms.find(t => t.type === 'biannually');
-        sel.value = 'biannually';
+        // 5) Default to Monthly
+        const defaultTerm = terms.find(t => t.type === 'monthly') || terms[1];
+        sel.value = defaultTerm.type;
         updatePricing(defaultTerm);
         card._term = defaultTerm;
+        card._plan = plan;
 
         sel.addEventListener('change', () => {
           const chosen = terms.find(t => t.type === sel.value);
@@ -121,10 +146,12 @@ frappe.ready(() => {
           updatePricing(chosen);
         });
 
-        // 6) “Choose plan” click → capture plan + term + dates
+        // 6) "Choose plan" click → capture plan + term + dates (ORIGINAL METHOD)
         card.querySelector('.choose-plan').onclick = () => {
-          window._selectedPlan      = plan;
+          window._selectedPlan      = card._plan;
           window._selectedTerm      = card._term;
+          
+          // Use original frappe datetime methods
           const today               = frappe.datetime.nowdate();
           window._selectedStartDate = today;
           if (card._term.type === 'trial') {
@@ -136,109 +163,536 @@ frappe.ready(() => {
         };
 
         container.appendChild(col);
-      });  // end plans.forEach
+      });
     } catch (err) {
       console.error('Error loading plans:', err);
-      frappe.msgprint('Could not load plans. Please try again later.');
+      frappe.msgprint({
+        title: 'Error Loading Plans',
+        message: 'Could not load plans. Please try again later.',
+        indicator: 'red'
+      });
     }
   }
 
   // ────────────────────────────────────────────
-  // STEP 2: Create Customer → Address → Subscription
+  // STEP 2: Form Validation Function (defined early for OTP callback)
   // ────────────────────────────────────────────
-  document.getElementById('btn-next').onclick = async () => {
-    // 0) gather all form values:
-    const first     = $('#first-name').val().trim();
-    const last      = $('#last-name').val().trim();
-    const email     = $('#cust-email').val().trim();
-    const phone     = $('#cust-phone').val().trim();
-    const street    = $('#addr-street').val().trim();
-    const city      = $('#addr-city').val().trim();
-    const state     = $('#addr-state').val().trim();
-    const postal    = $('#addr-postal').val().trim();
-    const country   = $('#addr-country').val().trim();
-    const plan_name = window._selectedPlan.name;
-    const start     = window._selectedStartDate;
-    const end       = window._selectedEndDate;
+  let otpVerified = false;
   
+  function validateStep2() {
+    const first     = document.getElementById('first-name')?.value.trim() || '';
+    const last      = document.getElementById('last-name')?.value.trim() || '';
+    const email     = document.getElementById('cust-email')?.value.trim() || '';
+    const phone     = document.getElementById('cust-phone')?.value.trim() || '';
+    const street    = document.getElementById('addr-street')?.value.trim() || '';
+    const city      = document.getElementById('addr-city')?.value.trim() || '';
+    const state     = document.getElementById('addr-state')?.value.trim() || '';
+    const postal    = document.getElementById('addr-postal')?.value.trim() || '';
+    const country   = document.getElementById('addr-country')?.value.trim() || '';
     
-    if (!first||!last||!email||!street||!city||!state||!postal||!country) {
-      return frappe.msgprint('All fields are required.');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isEmailValid = emailRegex.test(email);
+    
+    const allFieldsFilled = first && last && email && phone && street && city && state && postal && country;
+    const isValid = allFieldsFilled && isEmailValid && otpVerified;
+    
+    const btnToReview = document.getElementById('btn-to-review');
+    if (btnToReview) {
+      btnToReview.disabled = !isValid;
+      
+      // Update button appearance
+      if (!isValid) {
+        btnToReview.classList.remove('btn-primary');
+        btnToReview.classList.add('btn-secondary');
+        
+        // Show what's missing in button tooltip
+        let missing = [];
+        if (!allFieldsFilled) missing.push('fill all fields');
+        if (!isEmailValid && email) missing.push('enter valid email');
+        if (!otpVerified && isEmailValid) missing.push('verify email with code');
+        
+        if (missing.length > 0) {
+          btnToReview.innerHTML = `Continue to Review <i class="fas fa-lock"></i>`;
+          btnToReview.title = 'Please ' + missing.join(', ');
+        }
+      } else {
+        btnToReview.classList.remove('btn-secondary');
+        btnToReview.classList.add('btn-primary');
+        btnToReview.innerHTML = 'Continue to Review <i class="fas fa-arrow-right"></i>';
+        btnToReview.title = 'All set! Click to review and submit';
+      }
     }
+    
+    return isValid;
+  }
 
-    const provCtr  = document.getElementById('provision-container');
-    document.getElementById('signup-form').style.display = 'none';
-    document.getElementById('provision-container').style.display = 'block';
-  const provBar  = document.getElementById('provision-bar');
-  const provMsg  = document.getElementById('provision-message');
-  provCtr.style.display = 'block';
-  provBar.style.width   = '0%';
-  provMsg.textContent   = 'Starting environment setup...';
-
-  const steps = [
-    { msg: "Starting environment setup...",        pct: 10 },
-    { msg: "Installing IntraERP core modules...",   pct: 30 },
-    { msg: "Configuring domain and routing...",     pct: 50 },
-    { msg: "Applying user and storage limits...",   pct: 70 },
-    { msg: "Finalizing security and permissions...", pct: 90 },
-    { msg: "Wrapping up and verifying installation...", pct: 100 }
-  ];
+  // ────────────────────────────────────────────
+  // OTP VERIFICATION
+  // ────────────────────────────────────────────
+  let resendTimer = null;
   
-    // Single API call instead of three inserts:
-    let res = await frappe.call({
-      method: 'erp_saas.erp_saas.api.self_service.register_and_subscribe',
-      args: {
-        first_name:  first,
-        last_name:   last,
-        email:       email,
-        phone:       phone,
-        street:      street,
-        city:        city,
-        state:       state,
-        postal:      postal,
-        country:     country,
-        plan_name:   plan_name,
-        start_date:  start,
-        end_date:    end
+  // Send OTP
+  const btnSendOTP = document.getElementById('btn-send-otp');
+  if (btnSendOTP) {
+    btnSendOTP.onclick = async () => {
+      const emailInput = document.getElementById('cust-email');
+      const email = emailInput.value.trim();
+      
+      if (!email) {
+        frappe.msgprint('Please enter your email address first.');
+        emailInput.focus();
+        return;
       }
       
-   
-    });
-  
-    // r.message is the Subscription name
-    const subscriptionName = res.message;
-  
-    // Now call provisioning
-    await frappe.call({
-      method: 'erp_saas.erp_saas.api.provisioning.provision_site_remote',
-      args: { subscription_name: subscriptionName },
-      // freeze: true,
-      // freeze_message: '🔧 Provisioning your site…',
-     
-    });
-    
-    for (let step of steps) {
-      provBar.style.width     = step.pct + '%';
-      provMsg.textContent     = step.msg;
-      // pause 5 seconds per step => ~30sec total
-      await new Promise(resolve => setTimeout(resolve, 5000));
-    }
-  
-
-    frappe.msgprint({
-      title: __('Success'),
-      message: __('Your account created! Check your email for login details.'),
-      indicator: 'green',
-      primary_action: {
-        label: __('OK'),
-        action: () => { window.location.reload(); }
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        frappe.msgprint('Please enter a valid email address.');
+        emailInput.focus();
+        return;
       }
-    });
-  };
+      
+      // Disable button and show loading
+      btnSendOTP.disabled = true;
+      btnSendOTP.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+      
+      try {
+        const response = await frappe.call({
+          method: 'erp_saas.erp_saas.api.self_service.send_email_otp',
+          args: { email: email }
+        });
+        
+        console.log('Send OTP Response:', response.message);
+        
+        if (response.message && response.message.success) {
+          // Show OTP input section
+          document.getElementById('otp-input-section').style.display = 'block';
+          const otpInput = document.getElementById('email-otp');
+          otpInput.disabled = false;
+          otpInput.focus();
+          
+          // Show success notification
+          frappe.show_alert({
+            message: '✓ Verification code sent! Check your email.',
+            indicator: 'green'
+          }, 5);
+          
+          // Update button
+          btnSendOTP.innerHTML = '<i class="fas fa-redo"></i> Resend Code';
+          
+          // Store the sent OTP for comparison (for testing in console)
+          if (response.message.otp) {
+            console.log('OTP sent to email:', response.message.otp);
+            window._testOTP = response.message.otp;
+          }
+          
+          // Start countdown timer
+          let countdown = 60;
+          const timerEl = document.getElementById('otp-timer');
+          resendTimer = setInterval(() => {
+            countdown--;
+            timerEl.textContent = `You can resend code in ${countdown} seconds`;
+            if (countdown <= 0) {
+              clearInterval(resendTimer);
+              timerEl.textContent = '';
+              btnSendOTP.disabled = false;
+            }
+          }, 1000);
+          
+        } else {
+          frappe.msgprint({
+            title: 'Error',
+            message: response.message && response.message.message ? response.message.message : 'Failed to send verification code.',
+            indicator: 'red'
+          });
+          btnSendOTP.disabled = false;
+          btnSendOTP.innerHTML = '<i class="fas fa-paper-plane"></i> Send Verification Code';
+        }
+      } catch (error) {
+        console.error('OTP send error:', error);
+        frappe.msgprint({
+          title: 'Error',
+          message: 'Failed to send verification code. Please try again.',
+          indicator: 'red'
+        });
+        btnSendOTP.disabled = false;
+        btnSendOTP.innerHTML = '<i class="fas fa-paper-plane"></i> Send Verification Code';
+      }
+    };
+  }
   
+  // Auto-verify OTP when 6 digits entered
+  const otpInput = document.getElementById('email-otp');
+  if (otpInput) {
+    otpInput.oninput = async (e) => {
+      const statusEl = document.getElementById('otp-status');
+      
+      // Only allow numbers
+      const cleaned = e.target.value.replace(/[^0-9]/g, '');
+      e.target.value = cleaned;
+      
+      console.log('OTP Input:', cleaned, 'Length:', cleaned.length);
+      
+      if (cleaned.length === 6) {
+        // Auto-verify
+        console.log('Auto-verifying OTP:', cleaned);
+        statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+        statusEl.className = 'mt-2 text-center text-primary';
+        
+        try {
+          const email = document.getElementById('cust-email').value.trim();
+          console.log('Verifying for email:', email);
+          
+          const response = await frappe.call({
+            method: 'erp_saas.erp_saas.api.self_service.verify_email_otp',
+            args: { email: email, otp: cleaned }
+          });
+          
+          console.log('=== Full Verify OTP Response ===');
+          console.log('Full response:', response);
+          console.log('response.message:', response.message);
+          console.log('response.message.verified:', response.message?.verified);
+          console.log('response.message.message:', response.message?.message);
+          console.log('==============================');
+          
+          if (response.message && response.message.verified) {
+            otpVerified = true;
+            statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Email verified successfully!';
+            statusEl.className = 'mt-2 text-center text-success fw-bold';
+            otpInput.disabled = true;
+            otpInput.classList.add('border-success');
+            
+            // Show success alert
+            frappe.show_alert({
+              message: '✓ Email verified! You can now continue.',
+              indicator: 'green'
+            }, 5);
+            
+            // Clear timer
+            if (resendTimer) {
+              clearInterval(resendTimer);
+              document.getElementById('otp-timer').textContent = '';
+            }
+            
+            console.log('OTP Verified Successfully!');
+            
+            // Trigger validation to enable the Continue button
+            setTimeout(validateStep2, 100);
+          } else {
+            otpVerified = false;
+            const errorMsg = response.message && response.message.message ? response.message.message : 'Invalid code';
+            statusEl.innerHTML = '<i class="fas fa-times-circle"></i> ' + errorMsg;
+            statusEl.className = 'mt-2 text-center text-danger';
+            console.log('OTP Verification Failed:', errorMsg);
+            
+            // Clear input for retry
+            setTimeout(() => {
+              otpInput.value = '';
+              otpInput.focus();
+            }, 1500);
+          }
+        } catch (error) {
+          console.error('OTP verification error:', error);
+          statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Verification failed';
+          statusEl.className = 'mt-2 text-center text-danger';
+          
+          // Clear input for retry
+          setTimeout(() => {
+            otpInput.value = '';
+            otpInput.focus();
+          }, 1500);
+        }
+      } else if (cleaned.length === 0) {
+        statusEl.innerHTML = '';
+      }
+    };
+    
+    // Also handle paste event
+    otpInput.onpaste = (e) => {
+      e.preventDefault();
+      const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+      const cleaned = pastedText.replace(/[^0-9]/g, '').substring(0, 6);
+      otpInput.value = cleaned;
+      // Trigger input event to auto-verify
+      otpInput.dispatchEvent(new Event('input'));
+    };
+  }
+
+  // ────────────────────────────────────────────
+  // STEP 2: Real-time Validation Setup
+  // ────────────────────────────────────────────
+  
+  // Attach validation to all form fields
+  const formFields = [
+    'first-name', 'last-name', 'cust-email', 'cust-phone',
+    'addr-street', 'addr-city', 'addr-state', 'addr-postal', 'addr-country'
+  ];
+  
+  formFields.forEach(fieldId => {
+    const field = document.getElementById(fieldId);
+    if (field) {
+      field.addEventListener('input', validateStep2);
+      field.addEventListener('blur', validateStep2);
+    }
+  });
+  
+  // Initial validation check
+  setTimeout(validateStep2, 500);
+  
+  // ────────────────────────────────────────────
+  // Button: Continue to Review (Step 2 → Step 3)
+  // ────────────────────────────────────────────
+  const btnToReview = document.getElementById('btn-to-review');
+  if (btnToReview) {
+    btnToReview.onclick = () => {
+      // Re-validate before going to review
+      if (!validateStep2()) {
+        frappe.show_alert({
+          message: 'Please complete all required fields and verify your email',
+          indicator: 'orange'
+        }, 5);
+        return;
+      }
+      
+      // Gather all form values and store globally for review
+      window._formData = {
+        first:     document.getElementById('first-name').value.trim(),
+        last:      document.getElementById('last-name').value.trim(),
+        email:     document.getElementById('cust-email').value.trim(),
+        phone:     document.getElementById('cust-phone').value.trim(),
+        street:    document.getElementById('addr-street').value.trim(),
+        city:      document.getElementById('addr-city').value.trim(),
+        state:     document.getElementById('addr-state').value.trim(),
+        postal:    document.getElementById('addr-postal').value.trim(),
+        country:   document.getElementById('addr-country').value.trim()
+      };
+      
+      // Populate review section
+      populateReview();
+      
+      // Show Step 3 (Review)
+      showStep(3);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+  }
+
+  // ────────────────────────────────────────────
+  // Function: Populate Review Section
+  // ────────────────────────────────────────────
+  function populateReview() {
+    const data = window._formData;
+    const plan = window._selectedPlan;
+    const term = window._selectedTerm;
+    
+    // Plan Information
+    document.getElementById('review-plan-name').textContent = plan.plan_name;
+    document.getElementById('review-term').textContent = term.label + ' (' + 
+      (term.months === 0 ? term.days + ' days trial' : term.months + ' months') + ')';
+    
+    const totalPrice = term.months === 0 ? 'Free Trial' : 
+      plan.currency + ' ' + (plan.cost * term.months).toFixed(2);
+    document.getElementById('review-price').textContent = totalPrice;
+    
+    // Customer Information
+    document.getElementById('review-name').textContent = data.first + ' ' + data.last;
+    document.getElementById('review-email').textContent = data.email;
+    document.getElementById('review-phone').textContent = data.phone || '-';
+    
+    const address = [data.street, data.city, data.state, data.postal, data.country]
+      .filter(x => x).join(', ');
+    document.getElementById('review-address').textContent = address;
+  }
+
+  // ────────────────────────────────────────────
+  // Button: Edit Plan (Back to Step 1)
+  // ────────────────────────────────────────────
+  const btnEditPlan = document.getElementById('btn-edit-plan');
+  if (btnEditPlan) {
+    btnEditPlan.onclick = () => showStep(1);
+  }
+
+  // ────────────────────────────────────────────
+  // Button: Back to Information (Back to Step 2)
+  // ────────────────────────────────────────────
+  const btnBackToInfo = document.getElementById('btn-back-to-info');
+  if (btnBackToInfo) {
+    btnBackToInfo.onclick = () => showStep(2);
+  }
+  
+  const btnBackToInfo2 = document.getElementById('btn-back-to-info-2');
+  if (btnBackToInfo2) {
+    btnBackToInfo2.onclick = () => showStep(2);
+  }
+
+  // ────────────────────────────────────────────
+  // Button: Create My Account (Final Submit)
+  // ────────────────────────────────────────────
+  const btnFinalSubmit = document.getElementById('btn-final-submit');
+  if (btnFinalSubmit) {
+    btnFinalSubmit.onclick = async () => {
+      // Check terms agreement
+      const termsAgree = document.getElementById('terms-agree');
+      if (!termsAgree.checked) {
+        frappe.show_alert({
+          message: 'Please agree to the Terms of Service and Privacy Policy',
+          indicator: 'orange'
+        }, 5);
+        return;
+      }
+      
+      // Get form data
+      const data = window._formData;
+      const plan_name = window._selectedPlan.name;
+      const start     = window._selectedStartDate;
+      const end       = window._selectedEndDate;
+
+      // Disable button to prevent double submission
+      btnFinalSubmit.disabled = true;
+      btnFinalSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+      
+      const provCtr  = document.getElementById('provision-container');
+      const reviewContent = document.getElementById('review-content');
+      const provBar  = document.getElementById('provision-bar');
+      const provMsg  = document.getElementById('provision-message');
+      const provBarText = provBar.querySelector('.progress-text');
+      
+      // Hide review and show progress immediately
+      if (reviewContent) reviewContent.style.display = 'none';
+      if (provCtr) {
+        provCtr.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // Define progress steps with timing
+      const steps = [
+        { msg: "🚀 Creating your customer account...",        pct: 15, duration: 3 },
+        { msg: "📦 Preparing your RiyalERP environment...",   pct: 25, duration: 5 },
+        { msg: "🔧 Installing core RiyalERP modules...",       pct: 45, duration: 15 },
+        { msg: "🏢 Installing Hotel Management system...",    pct: 65, duration: 10 },
+        { msg: "⚙️ Configuring your workspace settings...",   pct: 80, duration: 8 },
+        { msg: "🔒 Setting up security and permissions...",   pct: 90, duration: 5 },
+        { msg: "✨ Finalizing your account...",               pct: 95, duration: 3 }
+      ];
+    
+      // Function to update progress bar
+      function updateProgress(pct, msg) {
+        if (provBar) {
+          provBar.style.width = pct + '%';
+          if (provBarText) provBarText.textContent = pct + '%';
+        }
+        if (provMsg) provMsg.textContent = msg;
+      }
+      
+      // Start progress animation
+      let currentStep = 0;
+      updateProgress(5, '⏳ Initializing your account creation...');
+      
+      // Animate through steps during provisioning
+      const progressInterval = setInterval(() => {
+        if (currentStep < steps.length) {
+          const step = steps[currentStep];
+          updateProgress(step.pct, step.msg);
+          currentStep++;
+        }
+      }, 4000); // Update every 4 seconds
+    
+      try {
+        // Create customer and subscription
+        updateProgress(10, '👤 Creating customer profile...');
+        
+        let res = await frappe.call({
+          method: 'erp_saas.erp_saas.api.self_service.register_and_subscribe',
+          args: {
+            first_name:  data.first,
+            last_name:   data.last,
+            email:       data.email,
+            phone:       data.phone,
+            street:      data.street,
+            city:        data.city,
+            state:       data.state,
+            postal:      data.postal,
+            country:     data.country,
+            plan_name:   plan_name,
+            start_date:  start,
+            end_date:    end
+          }
+        });
+      
+        const subscriptionName = res.message;
+        console.log('Subscription created:', subscriptionName);
+        
+        updateProgress(20, '🌐 Provisioning your dedicated site...');
+      
+        // Start provisioning (this takes the longest time)
+        await frappe.call({
+          method: 'erp_saas.erp_saas.api.provisioning.provision_site_remote',
+          args: { subscription_name: subscriptionName }
+        });
+        
+        // Clear interval and show completion
+        clearInterval(progressInterval);
+        updateProgress(100, '✅ Account created successfully!');
+
+        // Show success message
+        setTimeout(() => {
+          frappe.msgprint({
+            title: __('🎉 Success!'),
+            message: __(`
+              <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+                <h4>Your RiyalERP Account is Ready!</h4>
+                <p>We've sent your login credentials to <strong>${data.email}</strong></p>
+                <p class="text-muted">Please check your email inbox (and spam folder) for:</p>
+                <ul style="text-align: left; display: inline-block; margin-top: 15px;">
+                  <li>Your site URL</li>
+                  <li>Login username</li>
+                  <li>Temporary password</li>
+                </ul>
+                <hr style="margin: 20px 0;">
+                <p class="small text-muted">You can close this page now.</p>
+              </div>
+            `),
+            indicator: 'green',
+            primary_action: {
+              label: __('OK, Got it!'),
+              action: () => { window.location.reload(); }
+            }
+          });
+        }, 1000);
+        
+      } catch(error) {
+        console.error('Signup error:', error);
+        clearInterval(progressInterval); // Clear the progress interval on error
+        
+        if (reviewContent) reviewContent.style.display = 'block';
+        if (provCtr) provCtr.style.display = 'none';
+        if (btnFinalSubmit) {
+          btnFinalSubmit.disabled = false;
+          btnFinalSubmit.innerHTML = '<i class="fas fa-rocket"></i> Create My Account';
+        }
+        
+        const errorMsg = error.message || error.exc || 'An error occurred during signup';
+        frappe.msgprint({
+          title: '❌ Signup Error',
+          message: `
+            <div style="padding: 10px;">
+              <p>We encountered an issue creating your account:</p>
+              <p class="text-muted small">${errorMsg}</p>
+              <hr>
+              <p>Please try again or contact our support team if the problem persists.</p>
+            </div>
+          `,
+          indicator: 'red'
+        });
+      }
+    };
+  }
 
   // Back to Step 1
-  document.getElementById('btn-prev').onclick = () => showStep(1);
+  const btnPrev = document.getElementById('btn-prev');
+  if (btnPrev) {
+    btnPrev.onclick = () => showStep(1);
+  }
 
   // ────────────────────────────────────────────
   // Country loader (Step 2 datalist)
@@ -247,6 +701,8 @@ frappe.ready(() => {
     try {
       const r  = await frappe.call('erp_saas.erp_saas.api.self_service.get_country_list');
       const dl = document.getElementById('country-list');
+      if (!dl) return;
+      
       dl.innerHTML = '';
       (r.message || []).forEach(c => {
         dl.appendChild(Object.assign(
@@ -262,8 +718,15 @@ frappe.ready(() => {
   // ────────────────────────────────────────────
   // Initialize
   // ────────────────────────────────────────────
+  console.log('Initializing signup page...');
   showStep(1);
   loadPlans();
   loadCountries();
-  AOS.init({ duration: 600, once: true });
+  
+  // Initialize AOS if available
+  if (typeof AOS !== 'undefined') {
+    AOS.init({ duration: 600, once: true });
+  }
+  
+  console.log('✅ Signup page initialized');
 });

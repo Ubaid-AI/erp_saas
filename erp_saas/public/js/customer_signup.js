@@ -175,11 +175,120 @@ frappe.ready(() => {
   }
 
   // ────────────────────────────────────────────
+  // SUBDOMAIN VALIDATION
+  // ────────────────────────────────────────────
+  let subdomainAvailable = false;
+  let currentSubdomain = '';
+  let subdomainCheckTimeout = null;
+  
+  const subdomainInput = document.getElementById('subdomain-input');
+  const subdomainGroup = document.querySelector('.subdomain-input-group');
+  const subdomainStatus = document.getElementById('subdomain-status');
+  const statusIcon = subdomainStatus?.querySelector('.status-icon');
+  const statusMessage = subdomainStatus?.querySelector('.status-message');
+  
+  async function checkSubdomain(subdomain) {
+    if (!subdomain || subdomain.length < 3) {
+      hideSubdomainStatus();
+      subdomainAvailable = false;
+      return;
+    }
+    
+    // Show checking state
+    showSubdomainStatus('checking', 'Checking availability...');
+    
+    try {
+      const response = await frappe.call({
+        method: 'erp_saas.erp_saas.api.self_service.check_subdomain_availability',
+        args: { subdomain: subdomain },
+        freeze: false
+      });
+      
+      console.log('Subdomain check response:', response.message);
+      
+      if (response.message && response.message.available) {
+        subdomainAvailable = true;
+        currentSubdomain = response.message.full_domain;
+        showSubdomainStatus('available', response.message.message || 'Available!');
+      } else {
+        subdomainAvailable = false;
+        currentSubdomain = '';
+        showSubdomainStatus('unavailable', response.message.message || 'Not available');
+      }
+      
+      // Trigger step validation
+      validateStep2();
+      
+    } catch (error) {
+      console.error('Subdomain check error:', error);
+      subdomainAvailable = false;
+      showSubdomainStatus('unavailable', 'Error checking availability');
+    }
+  }
+  
+  function showSubdomainStatus(status, message) {
+    if (!subdomainStatus) return;
+    
+    subdomainStatus.style.display = 'flex';
+    subdomainStatus.className = `subdomain-status ${status}`;
+    
+    if (statusMessage) statusMessage.textContent = message;
+    
+    // Update input group border
+    if (subdomainGroup) {
+      subdomainGroup.classList.remove('available', 'unavailable', 'checking');
+      subdomainGroup.classList.add(status);
+    }
+  }
+  
+  function hideSubdomainStatus() {
+    if (subdomainStatus) {
+      subdomainStatus.style.display = 'none';
+    }
+    if (subdomainGroup) {
+      subdomainGroup.classList.remove('available', 'unavailable', 'checking');
+    }
+  }
+  
+  // Subdomain input event listeners
+  if (subdomainInput) {
+    subdomainInput.addEventListener('input', (e) => {
+      // Convert to lowercase and remove invalid characters
+      let value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+      e.target.value = value;
+      
+      // Clear previous timeout
+      if (subdomainCheckTimeout) {
+        clearTimeout(subdomainCheckTimeout);
+      }
+      
+      // Debounce check (wait 500ms after user stops typing)
+      if (value.length >= 3) {
+        subdomainCheckTimeout = setTimeout(() => {
+          checkSubdomain(value);
+        }, 500);
+      } else {
+        hideSubdomainStatus();
+        subdomainAvailable = false;
+        validateStep2();
+      }
+    });
+    
+    subdomainInput.addEventListener('blur', () => {
+      const value = subdomainInput.value.trim();
+      if (value && value.length >= 3) {
+        checkSubdomain(value);
+      }
+    });
+  }
+
+  // ────────────────────────────────────────────
   // STEP 2: Form Validation Function (defined early for OTP callback)
   // ────────────────────────────────────────────
   let otpVerified = false;
   
   function validateStep2() {
+    const subdomain = document.getElementById('subdomain-input')?.value.trim() || '';
     const first     = document.getElementById('first-name')?.value.trim() || '';
     const last      = document.getElementById('last-name')?.value.trim() || '';
     const email     = document.getElementById('cust-email')?.value.trim() || '';
@@ -193,8 +302,8 @@ frappe.ready(() => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isEmailValid = emailRegex.test(email);
     
-    const allFieldsFilled = first && last && email && phone && street && city && state && postal && country;
-    const isValid = allFieldsFilled && isEmailValid && otpVerified;
+    const allFieldsFilled = subdomain && first && last && email && phone && street && city && state && postal && country;
+    const isValid = allFieldsFilled && isEmailValid && otpVerified && subdomainAvailable;
     
     const btnToReview = document.getElementById('btn-to-review');
     if (btnToReview) {
@@ -207,6 +316,8 @@ frappe.ready(() => {
         
         // Show what's missing in button tooltip
         let missing = [];
+        if (!subdomain) missing.push('choose subdomain');
+        else if (!subdomainAvailable) missing.push('subdomain unavailable');
         if (!allFieldsFilled) missing.push('fill all fields');
         if (!isEmailValid && email) missing.push('enter valid email');
         if (!otpVerified && isEmailValid) missing.push('verify email with code');
@@ -456,6 +567,7 @@ frappe.ready(() => {
       
       // Gather all form values and store globally for review
       window._formData = {
+        subdomain: document.getElementById('subdomain-input').value.trim(),
         first:     document.getElementById('first-name').value.trim(),
         last:      document.getElementById('last-name').value.trim(),
         email:     document.getElementById('cust-email').value.trim(),
@@ -493,6 +605,16 @@ frappe.ready(() => {
       plan.currency + ' ' + (plan.cost * term.months).toFixed(2);
     document.getElementById('review-price').textContent = totalPrice;
     
+    // Subdomain Information
+    const fullSubdomain = `${data.subdomain}.riyalsystem.com.sa`;
+    const subdomainUrl = `https://${fullSubdomain}`;
+    
+    const reviewSubdomainLink = document.getElementById('review-subdomain-link');
+    if (reviewSubdomainLink) {
+      reviewSubdomainLink.textContent = subdomainUrl;
+      reviewSubdomainLink.href = subdomainUrl;
+    }
+    
     // Customer Information
     document.getElementById('review-name').textContent = data.first + ' ' + data.last;
     document.getElementById('review-email').textContent = data.email;
@@ -509,6 +631,24 @@ frappe.ready(() => {
   const btnEditPlan = document.getElementById('btn-edit-plan');
   if (btnEditPlan) {
     btnEditPlan.onclick = () => showStep(1);
+  }
+
+  // ────────────────────────────────────────────
+  // Button: Edit Subdomain (Back to Step 2)
+  // ────────────────────────────────────────────
+  const btnEditSubdomain = document.getElementById('btn-edit-subdomain');
+  if (btnEditSubdomain) {
+    btnEditSubdomain.onclick = () => {
+      showStep(2);
+      // Focus on subdomain input
+      setTimeout(() => {
+        const subdomainInput = document.getElementById('subdomain-input');
+        if (subdomainInput) {
+          subdomainInput.focus();
+          subdomainInput.select();
+        }
+      }, 300);
+    };
   }
 
   // ────────────────────────────────────────────
@@ -542,29 +682,29 @@ frappe.ready(() => {
       
       // Get form data
       const data = window._formData;
-      const plan_name = window._selectedPlan.name;
-      const start     = window._selectedStartDate;
-      const end       = window._selectedEndDate;
-
+    const plan_name = window._selectedPlan.name;
+    const start     = window._selectedStartDate;
+    const end       = window._selectedEndDate;
+  
       // Disable button to prevent double submission
       btnFinalSubmit.disabled = true;
       btnFinalSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
-      
-      const provCtr  = document.getElementById('provision-container');
+
+    const provCtr  = document.getElementById('provision-container');
       const reviewContent = document.getElementById('review-content');
-      const provBar  = document.getElementById('provision-bar');
-      const provMsg  = document.getElementById('provision-message');
+  const provBar  = document.getElementById('provision-bar');
+  const provMsg  = document.getElementById('provision-message');
       const provBarText = provBar.querySelector('.progress-text');
       
       // Hide review and show progress immediately
       if (reviewContent) reviewContent.style.display = 'none';
       if (provCtr) {
-        provCtr.style.display = 'block';
+  provCtr.style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
       // Define progress steps with timing
-      const steps = [
+  const steps = [
         { msg: "🚀 Creating your customer account...",        pct: 15, duration: 3 },
         { msg: "📦 Preparing your RiyalERP environment...",   pct: 25, duration: 5 },
         { msg: "🔧 Installing core RiyalERP modules...",       pct: 45, duration: 15 },
@@ -600,9 +740,9 @@ frappe.ready(() => {
         // Create customer and subscription
         updateProgress(10, '👤 Creating customer profile...');
         
-        let res = await frappe.call({
-          method: 'erp_saas.erp_saas.api.self_service.register_and_subscribe',
-          args: {
+    let res = await frappe.call({
+      method: 'erp_saas.erp_saas.api.self_service.register_and_subscribe',
+      args: {
             first_name:  data.first,
             last_name:   data.last,
             email:       data.email,
@@ -612,20 +752,21 @@ frappe.ready(() => {
             state:       data.state,
             postal:      data.postal,
             country:     data.country,
-            plan_name:   plan_name,
-            start_date:  start,
-            end_date:    end
-          }
-        });
-      
-        const subscriptionName = res.message;
+        plan_name:   plan_name,
+        start_date:  start,
+        end_date:    end,
+        subdomain:   data.subdomain
+      }
+    });
+  
+    const subscriptionName = res.message;
         console.log('Subscription created:', subscriptionName);
         
         updateProgress(20, '🌐 Provisioning your dedicated site...');
-      
+  
         // Start provisioning (this takes the longest time)
-        await frappe.call({
-          method: 'erp_saas.erp_saas.api.provisioning.provision_site_remote',
+    await frappe.call({
+      method: 'erp_saas.erp_saas.api.provisioning.provision_site_remote',
           args: { subscription_name: subscriptionName }
         });
         
@@ -635,7 +776,7 @@ frappe.ready(() => {
 
         // Show success message
         setTimeout(() => {
-          frappe.msgprint({
+    frappe.msgprint({
             title: __('🎉 Success!'),
             message: __(`
               <div style="text-align: center; padding: 20px;">
@@ -652,12 +793,12 @@ frappe.ready(() => {
                 <p class="small text-muted">You can close this page now.</p>
               </div>
             `),
-            indicator: 'green',
-            primary_action: {
+      indicator: 'green',
+      primary_action: {
               label: __('OK, Got it!'),
-              action: () => { window.location.reload(); }
-            }
-          });
+        action: () => { window.location.reload(); }
+      }
+    });
         }, 1000);
         
       } catch(error) {
@@ -725,7 +866,7 @@ frappe.ready(() => {
   
   // Initialize AOS if available
   if (typeof AOS !== 'undefined') {
-    AOS.init({ duration: 600, once: true });
+  AOS.init({ duration: 600, once: true });
   }
   
   console.log('✅ Signup page initialized');

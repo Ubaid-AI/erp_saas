@@ -41,7 +41,6 @@
       
       <div class="trust-badges mt-5 text-center">
         <span class="badge-item"><i class="fas fa-lock"></i> Secure Signup</span>
-        <span class="badge-item"><i class="fas fa-check-circle"></i> No Credit Card Required</span>
         <span class="badge-item"><i class="fas fa-bolt"></i> Instant Setup</span>
         <span class="badge-item"><i class="fas fa-headset"></i> 24/7 Support</span>
       </div>
@@ -60,6 +59,35 @@
           </div>
 
           <form id="signup-form">
+            
+            <!-- Subdomain Selection -->
+            <div class="form-section mb-4">
+              <h6 class="section-title">
+                <i class="fas fa-globe"></i> Choose Your Subdomain
+              </h6>
+              
+              <div class="subdomain-selector">
+                <label for="subdomain-input" class="form-label required">Your Subdomain</label>
+                <div class="subdomain-input-group">
+                  <input type="text" id="subdomain-input" class="form-control subdomain-input" 
+                         placeholder="mycompany" required
+                         pattern="[a-z0-9-]+" 
+                         title="Only lowercase letters, numbers, and hyphens"
+                         autocomplete="off" />
+                  <span class="subdomain-suffix">.riyalsystem.com.sa</span>
+                </div>
+                
+                <div id="subdomain-status" class="subdomain-status mt-2" style="display: none;">
+                  <span class="status-icon"></span>
+                  <span class="status-message"></span>
+                </div>
+                
+                <small class="form-text text-muted mt-2 d-block">
+                  <i class="fas fa-info-circle"></i> This will be your unique URL to access RiyalERP. 
+                  Choose wisely - it cannot be changed later.
+                </small>
+              </div>
+            </div>
             
             <!-- Personal Information -->
             <div class="form-section mb-4">
@@ -226,6 +254,33 @@
                   </div>
                   <div class="col-4 text-end">
                     <div class="h5 mb-0 text-primary" id="review-price">-</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Subdomain Review -->
+            <div class="review-section mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="section-title mb-0">
+                  <i class="fas fa-globe"></i> Your Subdomain
+                </h6>
+                <button type="button" id="btn-edit-subdomain" class="btn btn-sm btn-link">
+                  <i class="fas fa-edit"></i> Change
+                </button>
+              </div>
+              
+              <div class="review-card subdomain-review-card">
+                <div class="subdomain-url-display">
+                  <div class="url-icon">
+                    <i class="fas fa-link"></i>
+                  </div>
+                  <div class="url-content">
+                    <div class="url-label">Your RiyalERP URL</div>
+                    <div class="url-value" id="review-subdomain">
+                      <a href="#" id="review-subdomain-link" target="_blank">-</a>
+                    </div>
+                    <small class="text-muted">This will be your permanent login URL</small>
                   </div>
                 </div>
               </div>

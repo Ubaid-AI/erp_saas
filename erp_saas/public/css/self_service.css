@@ -177,18 +177,62 @@ nav.navbar.navbar-light.navbar-expand-lg {
   text-align: left;
 }
 
-.term-select .form-control {
+.term-select select,
+.term-select select.form-control,
+.term-select .form-control,
+select.form-control {
   width: 100%;
-  padding: 0.625rem;
-  font-size: 0.95rem;
-  border-radius: 0.5rem;
-  border: 2px solid #e9ecef;
-  transition: border-color 0.2s ease;
+  height: auto !important;
+  min-height: 38px;
+  padding: 0.625rem 2rem 0.625rem 0.75rem !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  line-height: 1.5 !important;
+  color: #1F1F1F !important;
+  background-color: #ffffff !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 16px 12px !important;
+  border: 2px solid #e9ecef !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.2s ease;
+  cursor: pointer !important;
+  text-align: left;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  -webkit-text-fill-color: #1F1F1F !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
 }
 
+.term-select select:hover,
+.term-select select.form-control:hover,
+.term-select .form-control:hover {
+  border-color: #ced4da !important;
+  background-color: #f8f9fa !important;
+}
+
+.term-select select:focus,
+.term-select select.form-control:focus,
 .term-select .form-control:focus {
-  border-color: #1F1F1F;
-  box-shadow: 0 0 0 0.2rem rgba(31, 31, 31, 0.15);
+  border-color: #1F1F1F !important;
+  box-shadow: 0 0 0 0.2rem rgba(31, 31, 31, 0.15) !important;
+  outline: none !important;
+  color: #1F1F1F !important;
+}
+
+.term-select select option,
+.term-select select.form-control option,
+.term-select .form-control option {
+  color: #1F1F1F !important;
+  background-color: #ffffff !important;
+  padding: 0.5rem !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+  display: block !important;
 }
 
 .price-block {
@@ -1182,4 +1226,203 @@ html body {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SUBDOMAIN SELECTOR STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+.subdomain-selector {
+  margin-bottom: 1.5rem;
+}
+
+.subdomain-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 2px solid #ced4da;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  background: #fff;
+}
+
+.subdomain-input-group:focus-within {
+  border-color: #1F1F1F;
+  box-shadow: 0 0 0 0.2rem rgba(31, 31, 31, 0.1);
+}
+
+.subdomain-input-group.available {
+  border-color: #28a745;
+}
+
+.subdomain-input-group.unavailable {
+  border-color: #dc3545;
+}
+
+.subdomain-input-group.checking {
+  border-color: #ffc107;
+}
+
+.subdomain-input {
+  flex: 1;
+  border: none !important;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  background: transparent;
+}
+
+.subdomain-input:focus {
+  outline: none;
+  box-shadow: none !important;
+}
+
+.subdomain-suffix {
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #6c757d;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border-left: 1px solid #dee2e6;
+}
+
+.subdomain-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.subdomain-status.available {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.subdomain-status.unavailable {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.subdomain-status.checking {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.subdomain-status .status-icon {
+  font-size: 1rem;
+}
+
+.subdomain-status.available .status-icon::before {
+  content: '✓';
+  font-weight: 700;
+}
+
+.subdomain-status.unavailable .status-icon::before {
+  content: '✗';
+  font-weight: 700;
+}
+
+.subdomain-status.checking .status-icon::before {
+  content: '⏳';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SUBDOMAIN REVIEW CARD
+   ═══════════════════════════════════════════════════════════════ */
+
+.subdomain-review-card {
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f7ff 100%);
+  border: 2px solid #91d5ff;
+  padding: 1.5rem;
+}
+
+.subdomain-url-display {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.url-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #1F1F1F, #2f2f2f);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.url-icon i {
+  font-size: 1.5rem;
+  color: #ffffff;
+}
+
+.url-content {
+  flex: 1;
+}
+
+.url-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6c757d;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.url-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1F1F1F;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+  margin-bottom: 0.25rem;
+}
+
+.url-value a {
+  color: #1F1F1F;
+  text-decoration: none;
+  border-bottom: 2px dashed #91d5ff;
+  transition: all 0.2s ease;
+}
+
+.url-value a:hover {
+  color: #0056b3;
+  border-bottom-color: #0056b3;
+}
+
+#btn-edit-subdomain {
+  color: #1F1F1F;
+  text-decoration: none;
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  transition: all 0.2s ease;
+}
+
+#btn-edit-subdomain:hover {
+  color: #2f2f2f;
+  background-color: rgba(31, 31, 31, 0.05);
+  border-radius: 0.25rem;
 }

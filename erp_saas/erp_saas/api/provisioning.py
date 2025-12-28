@@ -36,13 +36,20 @@ def _provision_site(subscription_doc):
     plan_name = subscription_doc.plans[0].plan
     plan = frappe.get_doc("Subscription Plan", plan_name)
 
-    # Get an available domain
-    domain_doc = frappe.get_all("Saas Domain", filters={"active": 1, "in_use": 0}, limit=1)
-    if not domain_doc:
-        frappe.throw("No available domains to provision the site.")
-
-    domain_doc = frappe.get_doc("Saas Domain", domain_doc[0].name)
-    site_name = domain_doc.domain
+    # Get site_name from subscription (user-chosen subdomain)
+    if not subscription_doc.custom_site_name:
+        frappe.throw("No site name/subdomain found in subscription.")
+    
+    site_name = subscription_doc.custom_site_name
+    
+    # Create Saas Domain record for this subdomain
+    domain_doc = frappe.get_doc({
+        "doctype": "Saas Domain",
+        "domain": site_name,
+        "active": 1,
+        "in_use": 1
+    })
+    domain_doc.insert(ignore_permissions=True)
 
     # Provision Frappe site
     BENCH_PATH = "/home/frappe/frappe-bench"
@@ -148,9 +155,7 @@ def _provision_site(subscription_doc):
         f.write(json.dumps(config, indent=2))
         f.truncate()
 
-    # Mark domain as in use
-    domain_doc.in_use = 1
-    domain_doc.save(ignore_permissions=True)
+    # Domain already created with in_use=1, no need to update
 
     # Create Customer Site record
     frappe.get_doc({
@@ -177,7 +182,7 @@ def _provision_site(subscription_doc):
         cust = frappe.get_doc("Customer", subscription_doc.party)
         recipient = cust.email_id   # use the built-in email_id field
         if recipient:
-            subject = "🎉 Welcome to RiyalERP - Your Account is Ready!"
+            subject = "Welcome to RiyalERP - Your Account is Ready!"
             body = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -197,10 +202,10 @@ def _provision_site(subscription_doc):
                     <tr>
                         <td style="background: linear-gradient(135deg, #1F1F1F 0%, #2f2f2f 100%); padding: 40px 30px; text-align: center;">
                             <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">
-                                🎉 Welcome to RiyalERP!
+                                Welcome to RiyalERP!
                             </h1>
                             <p style="margin: 10px 0 0; color: #e0e0e0; font-size: 16px; font-weight: 400;">
-                                Your business management platform is ready
+                                Your ERP Account is ready
                             </p>
                         </td>
                     </tr>
@@ -212,7 +217,7 @@ def _provision_site(subscription_doc):
                                 Hello <strong>{cust.customer_name}</strong>,
                             </p>
                             <p style="margin: 0 0 30px; color: #555555; font-size: 16px; line-height: 1.6;">
-                                Great news! Your RiyalERP account has been successfully created and is ready to use. We're excited to have you on board! 🚀
+                                Great news! Your RiyalERP account has been successfully created and is ready to use. We're excited to have you on board!
                             </p>
                             
                             <!-- Login Details Card -->
@@ -276,7 +281,7 @@ def _provision_site(subscription_doc):
                             <!-- CTA Button -->
                             <div style="text-align: center; margin: 30px 0;">
                                 <a href="https://{site_name}" style="display: inline-block; background: linear-gradient(90deg, #1F1F1F, #2f2f2f); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 700; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); transition: all 0.3s ease;">
-                                    🚀 Access Your Account Now
+                                    Access Your Account Now
                                 </a>
                             </div>
                             
@@ -306,7 +311,7 @@ def _provision_site(subscription_doc):
                     <tr>
                         <td style="background: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef;">
                             <p style="margin: 0 0 10px; color: #2f2f2f; font-size: 16px; font-weight: 600;">
-                                Welcome to the RiyalERP family! 🎊
+                                Welcome to the RiyalERP family!
                             </p>
                             <p style="margin: 0; color: #6c757d; font-size: 13px; line-height: 1.6;">
                                 © 2024 RiyalERP. All rights reserved.<br>

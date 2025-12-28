@@ -281,13 +281,97 @@ def get_country_list():
 
 
 @frappe.whitelist(allow_guest=True)
+def check_subdomain_availability(subdomain):
+    """
+    Check if a subdomain is available for registration.
+    Returns availability status and sanitized subdomain.
+    """
+    import re
+    
+    if not subdomain:
+        return {
+            'available': False,
+            'message': 'Please enter a subdomain',
+            'subdomain': ''
+        }
+    
+    # Sanitize subdomain: lowercase, alphanumeric and hyphens only
+    subdomain = subdomain.lower().strip()
+    subdomain = re.sub(r'[^a-z0-9-]', '', subdomain)
+    
+    # Validation rules
+    if len(subdomain) < 3:
+        return {
+            'available': False,
+            'message': 'Subdomain must be at least 3 characters',
+            'subdomain': subdomain
+        }
+    
+    if len(subdomain) > 63:
+        return {
+            'available': False,
+            'message': 'Subdomain must be less than 63 characters',
+            'subdomain': subdomain
+        }
+    
+    if subdomain.startswith('-') or subdomain.endswith('-'):
+        return {
+            'available': False,
+            'message': 'Subdomain cannot start or end with a hyphen',
+            'subdomain': subdomain
+        }
+    
+    # Reserved subdomains
+    reserved = ['www', 'mail', 'ftp', 'admin', 'root', 'test', 'demo', 'api', 
+                'app', 'staging', 'dev', 'prod', 'cpanel', 'webmail', 'smtp', 
+                'pop', 'imap', 'ns1', 'ns2', 'localhost']
+    
+    if subdomain in reserved:
+        return {
+            'available': False,
+            'message': 'This subdomain is reserved and cannot be used',
+            'subdomain': subdomain
+        }
+    
+    # Build full domain
+    base_domain = "riyalsystem.com.sa"
+    full_domain = f"{subdomain}.{base_domain}"
+    
+    # Check if domain exists in Saas Domain doctype
+    existing = frappe.db.exists("Saas Domain", {"domain": full_domain})
+    
+    if existing:
+        return {
+            'available': False,
+            'message': 'This subdomain is already taken',
+            'subdomain': subdomain,
+            'full_domain': full_domain
+        }
+    
+    return {
+        'available': True,
+        'message': 'Subdomain is available!',
+        'subdomain': subdomain,
+        'full_domain': full_domain
+    }
+
+
+@frappe.whitelist(allow_guest=True)
 def register_and_subscribe(first_name, last_name, email, phone,
                            street, city, state, postal, country,
-                           plan_name, start_date, end_date):
+                           plan_name, start_date, end_date, subdomain):
     """
     Create Customer + Address + Subscription in one go.
+    Validates subdomain and stores it for provisioning.
     Returns the new Subscription name.
     """
+    # Validate subdomain availability one more time before proceeding
+    subdomain_check = check_subdomain_availability(subdomain)
+    if not subdomain_check.get('available'):
+        frappe.throw(subdomain_check.get('message', 'Invalid subdomain'))
+    
+    full_domain = subdomain_check.get('full_domain')
+    
     # 1) Customer
     cust = frappe.get_doc({
         "doctype": "Customer",
@@ -308,14 +392,15 @@ def register_and_subscribe(first_name, last_name, email, phone,
         "links": [{"link_doctype":"Customer", "link_name": cust.name}]
     }).insert(ignore_permissions=True)
 
-    # 3) Subscription
+    # 3) Subscription with custom_site_name (chosen subdomain)
     sub = frappe.get_doc({
         "doctype": "Subscription",
         "party_type": "Customer",
         "party": cust.name,
         "start_date": start_date or nowdate(),
         "end_date": end_date,
-        "plans": [{"plan": plan_name, "qty": 1}]
+        "plans": [{"plan": plan_name, "qty": 1}],
+        "custom_site_name": full_domain  # Store chosen domain for provisioning
     })
     sub.flags.ignore_validate = True
     sub.insert(ignore_permissions=True)

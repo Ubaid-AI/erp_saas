@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2025-12-28 12:17:57.103277",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2025-12-28 12:17:57.103277",
+ "modified_by": "Administrator",
+ "module": "Erp SaaS",
+ "name": "admin-dashboard",
+ "owner": "Administrator",
+ "page_name": "admin-dashboard",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Admin Dashboard"
+}

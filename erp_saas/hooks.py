@@ -14,8 +14,14 @@ app_license = "MIT"
 # ------------------
 
 # include js, css files in header of desk.html
-app_include_css = "/assets/erp_saas/css/erp_saas.css"
-# app_include_js = "/assets/erp_saas/js/erp_saas.js"
+app_include_css = [
+    "/assets/erp_saas/css/erp_saas.css",
+    "/assets/erp_saas/css/admin_dashboard.css",
+    "/assets/erp_saas/css/site_detail_dashboard.css"
+]
+app_include_js = [
+    "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/erp_saas/css/erp_saas.css"

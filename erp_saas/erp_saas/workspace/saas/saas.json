@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"-qf9oR9EYZ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">SaaS</span>\",\"col\":12}},{\"id\":\"dEmUHBugla\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Subscription\",\"col\":4}},{\"id\":\"R0hr0bhvlp\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Domain\",\"col\":4}},{\"id\":\"uxuK3Ms5Er\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Available Sub-Domain\",\"col\":4}},{\"id\":\"f_giJgfzBg\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"jQT0fNp9UG\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Customer Subscription\",\"col\":4}},{\"id\":\"_IXCp1mE3R\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Saas Sub-Domain\",\"col\":4}},{\"id\":\"d9SM28Nuq_\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"xGl_AKjXMY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Subscription\",\"col\":3}},{\"id\":\"eQ3LyrjYY7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Subscription Plan\",\"col\":3}},{\"id\":\"G42ITTwGGp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Subscription\",\"col\":3}},{\"id\":\"0JtQgY5Wd7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Saas Domain\",\"col\":3}}]",
+ "content": "[{\"id\":\"-qf9oR9EYZ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">SaaS</span>\",\"col\":12}},{\"id\":\"dEmUHBugla\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Subscription\",\"col\":4}},{\"id\":\"R0hr0bhvlp\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Domain\",\"col\":4}},{\"id\":\"uxuK3Ms5Er\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Available Sub-Domain\",\"col\":4}},{\"id\":\"f_giJgfzBg\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"jQT0fNp9UG\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Customer Subscription\",\"col\":4}},{\"id\":\"_IXCp1mE3R\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Saas Sub-Domain\",\"col\":4}},{\"id\":\"0mwUSD8V0D\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Admin Dashboard\",\"col\":3}},{\"id\":\"d9SM28Nuq_\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"xGl_AKjXMY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Subscription\",\"col\":3}},{\"id\":\"eQ3LyrjYY7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Subscription Plan\",\"col\":3}},{\"id\":\"G42ITTwGGp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Subscription\",\"col\":3}},{\"id\":\"0JtQgY5Wd7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Saas Domain\",\"col\":3}}]",
  "creation": "2025-07-10 14:23:59.934395",
  "custom_blocks": [],
  "docstatus": 0,
@@ -13,7 +13,7 @@
  "is_hidden": 0,
  "label": "SaaS",
  "links": [],
- "modified": "2025-09-04 13:31:02.432684",
+ "modified": "2025-12-28 13:07:47.977637",
  "modified_by": "Administrator",
  "module": "Erp SaaS",
  "name": "SaaS",
@@ -49,6 +49,13 @@
  "roles": [],
  "sequence_id": 1.0,
  "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Admin Dashboard",
+   "link_to": "admin-dashboard",
+   "type": "Page"
+  },
   {
    "color": "Grey",
    "doc_view": "List",

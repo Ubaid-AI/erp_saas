@@ -17,7 +17,8 @@ app_license = "MIT"
 app_include_css = [
     "/assets/erp_saas/css/erp_saas.css",
     "/assets/erp_saas/css/admin_dashboard.css",
-    "/assets/erp_saas/css/site_detail_dashboard.css"
+    "/assets/erp_saas/css/site_detail_dashboard.css",
+    "/assets/erp_saas/css/server_health.css"
 ]
 app_include_js = [
     "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
